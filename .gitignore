@@ -1,0 +1,17 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Pruebas y Cobertura
+.pytest_cache/
+.coverage
+
+# Engine binaries
+stockfish.exe
