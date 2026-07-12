@@ -13,6 +13,7 @@ Uso:
 Comandos dentro de la partida:
     e2e4        Jugar el movimiento UCI indicado (entrada rápida).
     matrix      Entrar en modo matriz manual (simula entrada cruda de Vision).
+    random      Simula una jugada legal aleatoria reportada por Vision.
     board       Reimprimir el tablero actual.
     fen         Mostrar el FEN actual.
     quit        Salir.
@@ -21,6 +22,7 @@ Comandos dentro de la partida:
 from __future__ import annotations
 
 import argparse
+import random
 import sys
 
 import chess
@@ -90,21 +92,41 @@ def _read_manual_matrix() -> BoardMatrix:
     return matrix
 
 
-def _human_turn_uci(board: chess.Board) -> chess.Move | None:
-    """Lee un movimiento UCI por teclado y lo aplica via el contrato VisionInput.
+def _human_turn_uci(board: chess.Board) -> tuple[chess.Move, chess.Board] | None:
+    """Lee un comando o movimiento UCI por teclado y lo aplica via el contrato VisionInput.
 
-    Retorna el chess.Move aplicado, o None si el usuario pidió salir.
+    Retorna (movimiento aplicado, tablero previo al movimiento), o None si
+    el usuario pidió salir. Los comandos 'board' y 'fen' reimprimen
+    información sin consumir el turno.
     """
     while True:
-        raw = input("\nTu jugada (UCI, ej. e2e4) o 'matrix'/'quit': ").strip().lower()
+        raw = (
+            input(
+                "\nTu jugada (UCI, ej. e2e4) o 'matrix'/'random'/'board'/'fen'/'quit': "
+            )
+            .strip()
+            .lower()
+        )
 
         if raw == "quit":
             return None
+
+        if raw == "board":
+            print("\n" + render_board(board))
+            continue
+
+        if raw == "fen":
+            print(f"FEN actual: {board.fen()}")
+            continue
 
         if raw == "matrix":
             matrix = _read_manual_matrix()
             side_to_move = "w" if board.turn == chess.WHITE else "b"
             vision_input = vision_input_from_matrix(matrix, side_to_move)
+        elif raw == "random":
+            move = random.choice(list(board.legal_moves))
+            print(f"  (Vision simulado reporta la jugada aleatoria: {move.uci()})")
+            vision_input = vision_input_from_move(board, move)
         else:
             try:
                 move = chess.Move.from_uci(raw)
@@ -128,7 +150,7 @@ def _human_turn_uci(board: chess.Board) -> chess.Move | None:
             )
             continue
 
-        return applied_move, board_before  # type: ignore[return-value]
+        return applied_move, board_before
 
 
 def run() -> int:
