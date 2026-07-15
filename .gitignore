@@ -16,5 +16,8 @@ wheels/
 # Engine binaries
 stockfish.exe
 
+# Model
+chess-model-yolov8m.pt
+
 # Chat Session
 docs/

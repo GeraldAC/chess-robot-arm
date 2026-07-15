@@ -9,7 +9,7 @@ Pensado para ejecutarse en Google Colab:
     !python train_board_detector.py --data /content/datasets/board_corners/data.yaml
 
 El dataset debe estar en formato YOLO (imágenes + labels .txt), con
-una sola clase: "corner". Ver GUIA_tareas_usuario_M2_M3.md para cómo
+una sola clase: "corner". Ver M2_M3_SPEC.md (base strategy with model training with fine-tuning) para cómo
 generarlo y etiquetarlo.
 """
 

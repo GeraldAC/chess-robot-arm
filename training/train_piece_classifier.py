@@ -11,7 +11,7 @@ Pensado para ejecutarse en Google Colab:
 
 El dataset debe tener 12 clases, con el mismo alfabeto que
 BoardMatrix: wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK. Puede
-partir de un dataset público (ver GUIA_tareas_usuario_M2_M3.md)
+partir de un dataset público (ver M2_M3_SPEC.md - base strategy with model training with fine-tuning)
 combinado con imágenes propias.
 """
 
