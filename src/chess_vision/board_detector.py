@@ -22,7 +22,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from chess_vision.types import (
+from chess_vision.vision_types import (
     BoardCorners,
     BoardNotFoundError,
     CameraOrientedGrid,
@@ -73,9 +73,13 @@ def detect_board_corners(
         )
 
     lines_image = np.zeros(gray.shape, dtype=np.uint8)
-    for line in lines:
-        x1, y1, x2, y2 = line[0]
+
+    # AJUSTE DE ROBUSTEZ: Redimensionamos la matriz de líneas a (N, 4) para evitar
+    # problemas de desempaquetado si OpenCV la devuelve con dimensiones extra.
+    for line in lines.reshape(-1, 4):
+        x1, y1, x2, y2 = line
         cv2.line(lines_image, (x1, y1), (x2, y2), 255, 2)
+
     lines_image = cv2.dilate(lines_image, np.ones((3, 3), np.uint8), iterations=1)
 
     contours, _ = cv2.findContours(lines_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)

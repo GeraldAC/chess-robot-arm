@@ -9,7 +9,7 @@ remontajes — solo se contemplan 0°/180° (ver Pendiente §8 del SPEC).
 
 from __future__ import annotations
 
-from chess_vision.types import (
+from chess_vision.vision_types import (
     CameraOrientedMatrix,
     Orientation,
     OrientationAmbiguousError,

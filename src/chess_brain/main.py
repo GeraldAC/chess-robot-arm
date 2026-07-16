@@ -27,11 +27,11 @@ import sys
 
 import chess
 
+from chess_brain.brain_types import BoardMatrix
 from chess_brain.decision_engine import EngineError, get_best_move, init_engine
 from chess_brain.display import render_board, render_move_result
 from chess_brain.game_state import IllegalStateError, get_game_status
 from chess_brain.io_adapter import build_move_result, parse_vision_input
-from chess_brain.types import BoardMatrix
 from chess_brain.vision_stub import vision_input_from_matrix, vision_input_from_move
 
 _VALID_PIECE_CODES = {f"{color}{kind}" for color in "wb" for kind in "PNBRQK"} | {""}

@@ -10,7 +10,7 @@ import logging
 import cv2
 import numpy as np
 
-from chess_vision.types import (
+from chess_vision.vision_types import (
     CameraOrientedGrid,
     CameraOrientedMatrix,
     LowConfidenceDetectionError,

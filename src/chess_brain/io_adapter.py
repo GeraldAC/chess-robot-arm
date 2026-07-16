@@ -1,4 +1,4 @@
-"""Entrada / Salida - puente entre los contratos formales (types.py) y la
+"""Entrada / Salida - puente entre los contratos formales (brain_types.py) y la
 lógica interna de Estado del Juego (módulo 4) y Motor de Decision (módulo 5).
 
 Entrada:  VisionInput -> chess.Move aplicado sobre el board.
@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import chess
 
+from chess_brain.brain_types import GameStatus, MoveResult, PieceType, VisionInput
 from chess_brain.game_state import apply_human_move, get_game_status
-from chess_brain.types import GameStatus, MoveResult, PieceType, VisionInput
 
 _CHAR_FROM_PIECE_TYPE = {
     chess.PAWN: "P",

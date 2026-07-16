@@ -3,7 +3,7 @@
 import pytest
 
 from chess_vision.square_mapper import assign_pieces_to_grid, check_confidence
-from chess_vision.types import LowConfidenceDetectionError, PieceDetection
+from chess_vision.vision_types import LowConfidenceDetectionError, PieceDetection
 
 CELL = 100  # px, grilla simple sin perspectiva para pruebas (8x8, celdas de 100px)
 

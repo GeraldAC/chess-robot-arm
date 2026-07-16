@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import chess
 
+from chess_brain.brain_types import BoardMatrix, VisionInput
 from chess_brain.game_state import board_to_matrix
-from chess_brain.types import BoardMatrix, VisionInput
 
 
 def vision_input_from_move(board: chess.Board, move: chess.Move) -> VisionInput:

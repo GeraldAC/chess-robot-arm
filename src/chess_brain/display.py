@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import chess
 
-from chess_brain.types import MoveResult
+from chess_brain.brain_types import MoveResult
 
 _UNICODE_PIECES = {
     "P": "\u2659",

@@ -20,4 +20,4 @@ stockfish.exe
 chess-model-yolov8m.pt
 
 # Chat Session
-docs/
+sessions/

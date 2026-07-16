@@ -5,13 +5,13 @@ from __future__ import annotations
 import chess
 import pytest
 
+from chess_brain.brain_types import IllegalStateError
 from chess_brain.game_state import (
     apply_human_move,
     board_to_matrix,
     get_game_status,
     infer_human_move,
 )
-from chess_brain.types import IllegalStateError
 from tests.fixtures.boards import (
     board_en_passant_ready,
     board_fools_mate_setup,
