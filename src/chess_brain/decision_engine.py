@@ -13,7 +13,7 @@ from __future__ import annotations
 import chess
 import chess.engine
 
-from chess_brain.types import EngineError
+from chess_brain.brain_types import EngineError
 
 
 def init_engine(stockfish_path: str) -> chess.engine.SimpleEngine:

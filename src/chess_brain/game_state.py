@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import chess
 
-from chess_brain.types import BoardMatrix, IllegalStateError
+from chess_brain.brain_types import BoardMatrix, IllegalStateError
 
 # Mapeo entre el código de pieza usado en BoardMatrix ("wP", "bK", ...)
 # y los tipos/colores de python-chess.

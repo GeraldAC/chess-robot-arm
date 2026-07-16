@@ -10,12 +10,17 @@ from __future__ import annotations
 
 from typing import Literal
 
-from chess_brain.types import VisionInput
+from chess_brain.brain_types import VisionInput
 from chess_vision.board_detector import compute_square_grid, detect_board_corners
 from chess_vision.orientation import apply_orientation, resolve_orientation
 from chess_vision.piece_classifier import detect_pieces
 from chess_vision.square_mapper import assign_pieces_to_grid, check_confidence
-from chess_vision.types import BoardCorners, CameraOrientedGrid, Orientation, RawFrame
+from chess_vision.vision_types import (
+    BoardCorners,
+    CameraOrientedGrid,
+    Orientation,
+    RawFrame,
+)
 
 # Piso de ruido interno para detect_pieces dentro del pipeline:
 # deliberadamente bajo (no es el umbral de decisión de negocio). Ver

@@ -4,7 +4,7 @@ import cv2
 import pytest
 
 from chess_vision.board_detector import compute_square_grid, detect_board_corners
-from chess_vision.types import BoardNotFoundError
+from chess_vision.vision_types import BoardNotFoundError
 
 # Imagen real de tablero, tomada del proyecto comunitario de referencia
 # (siromermer/Dynamic-Chess-Board-Piece-Extraction), usada aquí solo

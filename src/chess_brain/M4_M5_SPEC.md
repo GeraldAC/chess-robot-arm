@@ -189,7 +189,7 @@ para `build_move_result`), o `None` si el usuario salió.
 ```python
 from chess_brain.decision_engine import get_best_move, init_engine
 from chess_brain.io_adapter import build_move_result, parse_vision_input
-from chess_brain.types import EngineError, IllegalStateError, MoveResult, VisionInput
+from chess_brain.brain_types import EngineError, IllegalStateError, MoveResult, VisionInput
 ```
 
 Este es el único contrato que el Orquestador (futuro M10) debería asumir
@@ -211,7 +211,7 @@ chess-robot-arm/
 │       ├── game_state.py         # M4
 │       ├── io_adapter.py          # Entrada / Salida
 │       ├── main.py                # CLI de producto funcional
-│       ├── types.py               # VisionInput, MoveResult, excepciones
+│       ├── brain_types.py               # VisionInput, MoveResult, excepciones
 │       ├── vision_stub.py         # simulador de Visión
 │       └── engine_binaries/        # almacenamiento de stockfish.exe
 ├── tests/

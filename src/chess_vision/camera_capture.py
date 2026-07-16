@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 import requests
 
-from chess_vision.types import RawFrame, VisionError
+from chess_vision.vision_types import RawFrame, VisionError
 
 
 def fetch_frame(esp32_cam_url: str, timeout: float = 5.0) -> RawFrame:

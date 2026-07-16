@@ -7,7 +7,7 @@ from chess_vision.orientation import (
     apply_orientation,
     resolve_orientation,
 )
-from chess_vision.types import OrientationAmbiguousError
+from chess_vision.vision_types import OrientationAmbiguousError
 
 
 def _rotate_180(matrix):

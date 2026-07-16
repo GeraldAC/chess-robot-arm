@@ -5,8 +5,8 @@ from __future__ import annotations
 import chess
 import pytest
 
+from chess_brain.brain_types import IllegalStateError
 from chess_brain.io_adapter import build_move_result, parse_vision_input
-from chess_brain.types import IllegalStateError
 from chess_brain.vision_stub import vision_input_from_matrix, vision_input_from_move
 from tests.fixtures.boards import (
     board_en_passant_ready,

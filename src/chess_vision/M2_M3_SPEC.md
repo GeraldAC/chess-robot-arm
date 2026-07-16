@@ -15,12 +15,12 @@ Este documento cubre:
 - **`pipeline.py`** (orquestación M2 → M3 → `VisionInput`)
 - **`camera_capture.py`** (lado receptor de M1)
 - **`main.py`** (producto funcional standalone: imagen local → `VisionInput`)
-- **`types.py`** (contratos internos de `chess_vision`)
+- **`vision_types.py`** (contratos internos de `chess_vision`)
 - **`__init__.py`** (superficie pública del paquete)
 
 Arquitectura: módulo Python (`chess_vision`) importado por el orquestador,
 mismo proceso, mismo criterio YAGNI que `chess_brain` (M4-5). `chess_vision`
-depende de `chess_brain.types` (`VisionInput`) — dependencia unidireccional.
+depende de `chess_brain.brain_types` (`VisionInput`) — dependencia unidireccional.
 
 El firmware/lado-emisor de la ESP32-CAM (M1) y el envío del `MoveResult`
 a M6 quedan fuera de alcance.
@@ -144,7 +144,7 @@ class OrientationAmbiguousError(VisionError):
 ### 5.3 Salida hacia `chess_brain`
 
 `VisionInput(board_matrix, side_to_move)`, definido en
-`chess_brain.types`. `chess_vision` no determina `side_to_move` (no es
+`chess_brain.brain_types`. `chess_vision` no determina `side_to_move` (no es
 su responsabilidad, ni tiene forma de saberlo a partir de una sola
 imagen) — se recibe como parámetro externo desde quien orqueste el turno.
 
@@ -314,7 +314,7 @@ Ver §9 para ejemplos de invocación desde la terminal.
 
 ```python
 from chess_vision.pipeline import calibrate_orientation, locate_board, process_frame
-from chess_vision.types import (
+from chess_vision.vision_types import (
     VisionError, BoardNotFoundError, LowConfidenceDetectionError, OrientationAmbiguousError,
 )
 ```
@@ -332,7 +332,7 @@ chess-robot-arm/
 │   ├── chess_brain/                  # M4-5 (implementado)
 │   └── chess_vision/                  # M2-3 (implementado)
 │       ├── __init__.py
-│       ├── types.py
+│       ├── vision_types.py
 │       ├── board_detector.py          # M2 — OpenCV clásico
 │       ├── piece_classifier.py        # M3 — modelo pretrained
 │       ├── square_mapper.py

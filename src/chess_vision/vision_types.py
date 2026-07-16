@@ -1,4 +1,4 @@
-"""chess_vision.types — contratos internos de M2 (Detección del
+"""chess_vision.vision_types — contratos internos de M2 (Detección del
 tablero) y M3 (Clasificación de piezas).
 
 v2: estrategia "usar soluciones existentes" — sin entrenamiento

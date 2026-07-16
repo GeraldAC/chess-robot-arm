@@ -19,7 +19,7 @@ no a los píxeles que ve el detector.
 
 from __future__ import annotations
 
-from chess_vision.types import PieceDetection
+from chess_vision.vision_types import PieceDetection
 
 # Alfabeto de nombres de clase del modelo comunitario -> alfabeto de
 # chess_brain ("wP", "bN", ...). Si se cambia de modelo, este mapa
