@@ -6,26 +6,24 @@ El sistema robótico de ajedrez se compone de cinco subsistemas principales: pro
 
 Encargada de la ejecución del algoritmo de visión artificial, el motor de ajedrez y el cálculo de la cinemática para el sistema de actuación.
 
-| Componente                         | Especificación Técnica                                     |
-| ---------------------------------- | ---------------------------------------------------------- |
-| **Sistema Operativo**              | Windows 11                                                 |
-| **Procesador (CPU)**               | Intel Core i7                                              |
-| **Memoria RAM**                    | 16 GB                                                      |
-| **Almacenamiento**                 | 1 TB Unidad de Estado Sólido (SSD)                         |
-| **Procesador Gráfico (GPU)**       | NVIDIA GeForce RTX 4070 (Aceleración de inferencia visual) |
-| **Entorno de Desarrollo**          | Visual Studio Code (IDE)                                   |
-| **Gestor de Entorno/Dependencias** | `uv` (Gestión de paquetes y entornos virtuales de Python)  |
+| Componente                   | Especificación Técnica                                     |
+| ---------------------------- | ---------------------------------------------------------- |
+| **Sistema Operativo**        | Windows 11                                                 |
+| **Procesador (CPU)**         | Intel Core i7                                              |
+| **Memoria RAM**              | 16 GB                                                      |
+| **Almacenamiento**           | 1 TB Unidad de Estado Sólido (SSD)                         |
+| **Procesador Gráfico (GPU)** | NVIDIA GeForce RTX 4070 (Aceleración de inferencia visual) |
 
 ## 2. Sistema de Percepción Visual
 
 Responsable de la captura cenital del estado del tablero y su transmisión inalámbrica hacia la unidad de procesamiento central.
 
-| Componente                   | Especificación Técnica                                          |
-| ---------------------------- | --------------------------------------------------------------- |
-| **Módulo de Procesamiento**  | Placa de desarrollo ESP32-CAM                                   |
-| **Sensor de Imagen**         | Omnivision OV3660 (3 Megapíxeles)                               |
-| **Interfaz de Comunicación** | Wi-Fi 802.11 b/g/n (Protocolo de streaming de video sobre HTTP) |
-| **Interfaz de Programación** | Módulo adaptador serie FTDI / Base shield Micro-USB a TTL       |
+| Componente                   | Especificación Técnica                                    |
+| ---------------------------- | --------------------------------------------------------- |
+| **Módulo de Procesamiento**  | Placa de desarrollo ESP32-CAM                             |
+| **Sensor de Imagen**         | Omnivision OV3660 (3 Megapíxeles)                         |
+| **Interfaz de Comunicación** | Wi-Fi 802.11 b/g/n (Protocolo de streaming sobre HTTP)    |
+| **Interfaz de Programación** | Módulo adaptador serie FTDI / Base shield Micro-USB a TTL |
 
 ## 3. Sistema Mecánico y de Actuación
 
