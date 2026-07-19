@@ -206,6 +206,7 @@ chess-robot-arm/
 ├── src/
 │   └── chess_brain/
 │       ├── __init__.py
+│       ├── M4_M5_SPEC.md
 │       ├── decision_engine.py    # M5
 │       ├── display.py             # presentación en consola
 │       ├── game_state.py         # M4
@@ -214,12 +215,16 @@ chess-robot-arm/
 │       ├── brain_types.py               # VisionInput, MoveResult, excepciones
 │       ├── vision_stub.py         # simulador de Visión
 │       └── engine_binaries/        # almacenamiento de stockfish.exe
+│           └── stockfish.exe
 ├── tests/
-│   ├── test_game_state.py
-│   ├── test_decision_engine.py
-│   ├── test_io_adapter.py
-│   └── fixtures/
-│       └── boards.py               # matrices 8x8 de prueba
+│   └── test_brain/
+│       ├── __init__.py
+│       ├── test_game_state.py
+│       ├── test_decision_engine.py
+│       ├── test_io_adapter.py
+│       └── fixtures/
+│           ├── __init__.py
+│           └── boards.py           # matrices 8x8 de prueba
 └── .gitignore
 ```
 

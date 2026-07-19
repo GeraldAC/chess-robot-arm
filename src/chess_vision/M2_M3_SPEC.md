@@ -329,9 +329,11 @@ la depuración visual lo necesitan directamente. Igual que en
 ```structure
 chess-robot-arm/
 ├── src/
-│   ├── chess_brain/                  # M4-5 (implementado)
+│   ├── chess_brain/                   # M4-5 (implementado)
 │   └── chess_vision/                  # M2-3 (implementado)
 │       ├── __init__.py
+│       ├── M2_M3_SPEC.md
+│       ├── vision_main.py             # producto funcional standalone M2+M3
 │       ├── vision_types.py
 │       ├── board_detector.py          # M2 — OpenCV clásico
 │       ├── piece_classifier.py        # M3 — modelo pretrained
@@ -341,19 +343,25 @@ chess-robot-arm/
 │       ├── camera_capture.py
 │       └── models/
 │           └── chess-model-yolov8m.pt # descargado por el usuario, no versionado en git
-├── vision_main.py                            # producto funcional standalone M2+M3
 ├── training/                          # scripts de fine-tuning incremental — no requeridos para el estado actual
 │   ├── train_board_detector.py        # no aplica al enfoque actual de M2 (ver §2)
-│   └── train_piece_classifier.py      # útil para fine-tuning incremental si hace falta
+│   ├── train_piece_classifier.py      # útil para fine-tuning incremental si hace falta
+│   └── datasets/
 └── tests/
-    ├── test_board_detector.py         # incluye foto real de referencia
-    ├── test_piece_classifier.py
-    ├── test_square_mapper.py
-    ├── test_orientation.py
-    ├── test_pipeline.py
-    └── fixtures/
-        ├── fake_yolo.py
-        └── sample_board.jpeg          # foto real, tomada del repo de referencia
+    ├── test_brain/
+    └── test_vision/
+        ├── __init__.py
+        ├── test_board_detector.py         # incluye foto real de referencia
+        ├── test_piece_classifier.py
+        ├── test_square_mapper.py
+        ├── test_orientation.py
+        ├── test_pipeline.py
+        └── fixtures/
+            ├── __init__.py
+            ├── fake_yolo.py
+            └── sample_frames/
+                ├── test_tablero.jpeg
+                └── sample_board.jpeg  # foto real, tomada del repo de referencia
 ```
 
 _(`train_board_detector.py` queda documentado como no aplicable al
