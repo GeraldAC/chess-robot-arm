@@ -7,16 +7,30 @@ variable de entorno STOCKFISH_PATH (ver README para configuración local).
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import pytest
 
 from chess_brain.decision_engine import EngineError, get_best_move, init_engine
-from tests.fixtures.boards import board_fools_mate_setup, initial_board
+from test_brain.fixtures.boards import board_fools_mate_setup, initial_board
 
-STOCKFISH_PATH = os.environ.get("STOCKFISH_PATH", "/usr/games/stockfish")
+# 1. Resolución dinámica de la ruta:
+# __file__ = tests/test_brain/archivo_de_prueba.py
+# .parents[0] = tests/test_brain/
+# .parents[1] = tests/
+# .parents[2] = chess-robot-arm/ (¡La raíz de tu proyecto!)
+PROYECTO_RAIZ = Path(__file__).resolve().parents[2]
+
+# 2. Definimos la ruta de Stockfish
+RUTA_STOCKFISH_DEFECTO = str(
+    PROYECTO_RAIZ / "src" / "chess_brain" / "engine_binaries" / "stockfish.exe"
+)
+
+STOCKFISH_PATH = os.environ.get("STOCKFISH_PATH", RUTA_STOCKFISH_DEFECTO)
+
 _SKIP_REASON = (
     f"Stockfish no encontrado en '{STOCKFISH_PATH}'. "
-    "Define la variable de entorno STOCKFISH_PATH apuntando al binario."
+    "Verifica la ruta relativa o define la variable de entorno STOCKFISH_PATH."
 )
 
 
@@ -24,6 +38,7 @@ _SKIP_REASON = (
 def engine():
     if not os.path.exists(STOCKFISH_PATH):
         pytest.skip(_SKIP_REASON)
+
     eng = init_engine(STOCKFISH_PATH)
     yield eng
     eng.quit()

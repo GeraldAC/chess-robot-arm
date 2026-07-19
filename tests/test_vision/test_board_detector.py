@@ -9,7 +9,7 @@ from chess_vision.vision_types import BoardNotFoundError
 # Imagen real de tablero, tomada del proyecto comunitario de referencia
 # (siromermer/Dynamic-Chess-Board-Piece-Extraction), usada aquí solo
 # para validar que la detección funciona con una foto real.
-REAL_BOARD_IMAGE_PATH = "tests/fixtures/sample_board.jpeg"
+REAL_BOARD_IMAGE_PATH = "tests/test_vision/fixtures/sample_frames/sample_board.jpeg"
 
 
 def test_detect_board_corners_on_real_image():

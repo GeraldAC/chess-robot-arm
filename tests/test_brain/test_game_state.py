@@ -12,7 +12,7 @@ from chess_brain.game_state import (
     get_game_status,
     infer_human_move,
 )
-from tests.fixtures.boards import (
+from test_brain.fixtures.boards import (
     board_en_passant_ready,
     board_fools_mate_setup,
     board_kingside_castle_ready,

@@ -1,6 +1,6 @@
 """chess_vision — Detección del Tablero (M2) + Clasificación de Piezas (M3).
 
-v2: usa detección clásica de tablero (sin ML) y un modelo YOLO
+Usa detección clásica de tablero (sin ML) y un modelo YOLO
 pretrained por la comunidad para piezas — sin entrenamiento propio.
 Ver M2_M3_SPEC.md.
 """

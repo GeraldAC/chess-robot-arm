@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "chess>=1.11.2",
+    "dill>=0.4.1",
     "numpy>=2.5.1",
     "opencv-python>=5.0.0.93",
     "requests>=2.34.2",
@@ -13,10 +14,13 @@ dependencies = [
 ]
 
 [project.scripts]
-chess-brain = "chess_brain.main:run"
+chess-brain = "chess_brain.brain_main:run"
+chess-vision = "chess_vision.vision_main:run"
 
 [tool.poe.tasks]
-chess-test = "pytest tests/ --cov=src/chess_brain -v"
+chess-test-brain = "pytest tests/test_brain/ --cov=src/chess_brain -v"
+chess-test-vision = "pytest tests/test_vision/ --cov=src/chess_vision -v"
+chess-test = "pytest tests/ --cov=src/ -v"
 
 [dependency-groups]
 dev = [
@@ -30,4 +34,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/chess_brain"]
+packages = [
+    "src/chess_brain",
+    "src/chess_vision"
+]

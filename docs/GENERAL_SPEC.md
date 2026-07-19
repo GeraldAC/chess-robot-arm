@@ -119,7 +119,7 @@ y **SPEC — chess_vision (Módulos 2-3)**.
 - **M2 (Detección del tablero)** y **M3 (Clasificación de piezas)**
   implementados sobre soluciones ya existentes de la comunidad (sin
   entrenamiento propio), con un producto funcional standalone
-  (`main.py`) que corre el pipeline completo sobre una imagen local y
+  (`vision_main.py`) que corre el pipeline completo sobre una imagen local y
   muestra entrada/salida exactas. Pendiente de validación con hardware
   y tablero físico reales por parte del usuario.
 - **Siguiente enfoque:** con M2-5 cubiertos de punta a punta (imagen →

@@ -1,4 +1,4 @@
-"""main.py — Producto funcional standalone de chess_vision (M2 + M3).
+"""Producto funcional standalone de chess_vision (M2 + M3).
 
 Toma una imagen local de un tablero real, la corre por el pipeline
 completo (detección clásica del tablero + modelo de piezas pretrained
@@ -11,11 +11,12 @@ de la comunidad) e imprime en consola, de forma clara:
        piezas ya mapeada a casillas.
 
 No depende de Vision real (ESP32-CAM) ni del brazo — es la
-contraparte de M2/M3 al `main.py` de chess_brain (M4/M5).
+contraparte de M2/M3 al `vision_main.py` de chess_brain (M4/M5).
 
 Uso:
-    python main.py --image test_tablero.jpg --model models/chess-model-yolov8m.pt
-    python main.py --image test_tablero.jpg --model models/chess-model-yolov8m.pt --calibrate
+    python vision_main.py --image test_tablero.jpg --model models/chess-model-yolov8m.pt
+    python vision_main.py --image test_tablero.jpg --model models/chess-model-yolov8m.pt --calibrate
+    uv run python ./src/chess_vision/vision_main.py --image ./tests/test_vision/fixtures/sample_frames/test_tablero.jpeg --model ./src/chess_vision/models/chess-model-yolov8m.pt
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ import sys
 from pathlib import Path
 
 import cv2
+import matplotlib.pyplot as plt
 
 from chess_vision.piece_classifier import detect_pieces
 from chess_vision.pipeline import calibrate_orientation, locate_board, process_frame
@@ -36,6 +38,33 @@ from chess_vision.vision_types import (
 )
 
 _SEP = "=" * 70
+
+
+def _parse_args(argv: list[str]) -> argparse.Namespace:
+    """Extrae y define los argumentos de configuración del módulo Vision."""
+    parser = argparse.ArgumentParser(
+        description="CLI de prueba para Módulo de Visión (M2+M3).",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--image",
+        default="./tests/test_vision/fixtures/sample_frames/test_tablero.jpeg",
+        help="Ruta a la imagen local.",
+    )
+    parser.add_argument(
+        "--model",
+        default="./src/chess_vision/models/chess-model-yolov8m.pt",
+        help="Ruta al modelo (.pt).",
+    )
+    parser.add_argument("--side-to-move", choices=["w", "b"], default="w")
+    parser.add_argument(
+        "--orientation", choices=["identity", "rotated_180"], default="identity"
+    )
+    parser.add_argument(
+        "--calibrate", action="store_true", help="Resuelve orientación automáticamente."
+    )
+    parser.add_argument("--confidence-threshold", type=float, default=0.5)
+    return parser.parse_args(argv)
 
 
 def _print_header(title: str) -> None:
@@ -74,44 +103,20 @@ def _load_piece_model(model_path: str):
     return YOLO(model_path)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        "--image", default="test_tablero.jpg", help="Ruta a la imagen local del tablero"
-    )
-    parser.add_argument(
-        "--model",
-        default="models/chess-model-yolov8m.pt",
-        help="Ruta al modelo de piezas (.pt)",
-    )
-    parser.add_argument("--side-to-move", choices=["w", "b"], default="w")
-    parser.add_argument(
-        "--orientation",
-        choices=["identity", "rotated_180"],
-        default="identity",
-        help="Orientación de cámara ya resuelta. Ignorado si se pasa --calibrate.",
-    )
-    parser.add_argument(
-        "--calibrate",
-        action="store_true",
-        help="Trata la imagen como posición inicial y resuelve la orientación automáticamente.",
-    )
-    parser.add_argument("--confidence-threshold", type=float, default=0.5)
-    args = parser.parse_args()
+def run() -> int:
+    args = _parse_args(sys.argv[1:])
 
     # --- [1] ENTRADA ---------------------------------------------------
     _print_header("[1] ENTRADA")
     image_path = Path(args.image)
     if not image_path.exists():
         print(f"ERROR: no se encontró la imagen '{image_path}'.")
-        sys.exit(1)
+        return 1
 
     frame = cv2.imread(str(image_path))
     if frame is None:
         print(f"ERROR: '{image_path}' existe pero no se pudo decodificar como imagen.")
-        sys.exit(1)
+        return 1
 
     height, width, channels = frame.shape
     print(f"  Archivo:      {image_path}")
@@ -129,7 +134,7 @@ def main() -> None:
         corners, grid = locate_board(frame)
     except BoardNotFoundError as exc:
         print(f"ERROR (BoardNotFoundError): {exc}")
-        sys.exit(1)
+        return 1
 
     print("  Esquinas detectadas (px):")
     print(f"    top_left:     {corners.top_left}")
@@ -139,6 +144,46 @@ def main() -> None:
     print(
         f"  Grilla de {len(grid)}x{len(grid[0])} casillas calculada (con perspectiva real)."
     )
+
+    # --- VISUALIZACIÓN M2: Tablero y Grilla (Corregido) ---
+    img_board = frame.copy()
+
+    # Dibujar las 4 esquinas principales del tablero entero (Rojo)
+    for corner in [
+        corners.top_left,
+        corners.top_right,
+        corners.bottom_left,
+        corners.bottom_right,
+    ]:
+        cv2.circle(
+            img_board,
+            (int(corner[0]), int(corner[1])),
+            radius=8,
+            color=(0, 0, 255),
+            thickness=-1,
+        )
+
+    # Dibujar los vértices de cada casilla interna (Verde)
+    for row in grid:
+        for casilla in row:
+            # 'casilla' contiene 4 esquinas: (v1, v2, v3, v4)
+            for vertice in casilla:
+                # 'vertice' es un Point2D: (x, y)
+                cv2.circle(
+                    img_board,
+                    (int(vertice[0]), int(vertice[1])),
+                    radius=3,
+                    color=(0, 255, 0),
+                    thickness=-1,
+                )
+
+    img_board_rgb = cv2.cvtColor(img_board, cv2.COLOR_BGR2RGB)
+
+    plt.figure(figsize=(8, 8))
+    plt.imshow(img_board_rgb)
+    plt.title("M2: Esquinas detectadas y Grilla proyectada")
+    plt.axis("off")
+    plt.show(block=False)
 
     # --- [3] M3 — Detección de piezas ----------------------------------
     _print_header("[3] M3 — Detección de piezas")
@@ -153,6 +198,35 @@ def main() -> None:
     print(
         f"  Casillas con confianza < {args.confidence_threshold:.2f}:              {uncertain_count}"
     )
+
+    # --- VISUALIZACIÓN M3: Detección de Piezas ---
+    img_pieces = frame.copy()
+
+    for det in raw_detections:
+        x1, y1, x2, y2 = map(int, det.bbox_px)
+
+        # Dibujar la caja delimitadora (Azul)
+        cv2.rectangle(img_pieces, (x1, y1), (x2, y2), color=(255, 0, 0), thickness=2)
+
+        # Dibujar el texto con la clase y confianza
+        label = f"{det.piece_code} ({det.confidence:.2f})"
+        cv2.putText(
+            img_pieces,
+            label,
+            (x1, max(y1 - 10, 0)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 0, 0),
+            2,
+        )
+
+    img_pieces_rgb = cv2.cvtColor(img_pieces, cv2.COLOR_BGR2RGB)
+
+    plt.figure(figsize=(8, 8))
+    plt.imshow(img_pieces_rgb)
+    plt.title("M3: Detección de Piezas (Raw)")
+    plt.axis("off")
+    plt.show(block=False)
 
     # --- [4] SALIDA — VisionInput ---------------------------------------
     _print_header("[4] SALIDA — VisionInput")
@@ -178,10 +252,10 @@ def main() -> None:
         print(
             "(baja --confidence-threshold para ver el resultado de todas formas, con precaución)"
         )
-        sys.exit(1)
+        return 1
     except VisionError as exc:
         print(f"\nERROR ({type(exc).__name__}): {exc}")
-        sys.exit(1)
+        return 1
 
     print()
     print(_render_ascii_board(vision_input.board_matrix))
@@ -194,6 +268,10 @@ def main() -> None:
     print("    ]")
     print(f"\n{_SEP}\n")
 
+    plt.show()
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(run())

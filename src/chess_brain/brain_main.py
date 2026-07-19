@@ -9,6 +9,7 @@ Uso:
     uv run chess-brain --stockfish-path /ruta/a/stockfish
     uv run chess-brain --stockfish-path /ruta/a/stockfish --human-color black
     uv run chess-brain --stockfish-path /ruta/a/stockfish --think-time 2.0
+    uv run chess-brain --stockfish-path "./src/chess_brain/engine_binaries/stockfish.exe" --human-color white --think-time 1.0
 
 Comandos dentro de la partida:
     e2e4        Jugar el movimiento UCI indicado (entrada rápida).
@@ -43,7 +44,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--stockfish-path",
-        required=True,
+        default="./src/chess_brain/engine_binaries/stockfish.exe",
         help="Ruta al binario de Stockfish (ej. C:\\stockfish\\stockfish.exe en Windows).",
     )
     parser.add_argument(

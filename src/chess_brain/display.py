@@ -1,6 +1,6 @@
 """Presentación en consola: tablero ASCII y formato legible de MoveResult.
 
-Separado del CLI (main.py) para poder reusarlo en tests o en otras interfaces
+Separado del CLI (brain_main.py) para poder reusarlo en tests o en otras interfaces
 (ej. un futuro log de partida) sin arrastrar lógica de entrada de usuario.
 """
 

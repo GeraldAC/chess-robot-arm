@@ -62,6 +62,8 @@ chess-robot-arm/
 │   ├── chess_brain/       # M4-5: estado del juego, motor de decisión, CLI
 │   └── chess_vision/      # M2-3: detección de tablero, clasificación de piezas
 ├── tests/
+│   ├── test_brain/
+│   └── test_vision/
 └── .gitignore
 ```
 
@@ -70,6 +72,7 @@ chess-robot-arm/
 - Python 3.11
 - [uv](https://docs.astral.sh/uv/) para gestión de proyecto y dependencias
 - Binario de Stockfish para Windows ([descarga oficial](https://stockfishchess.org/download/))
+- Peso del modelo YOLOv8 ([descarga oficial](https://github.com/siromermer/Dynamic-Chess-Board-Piece-Extraction/blob/main/chess-model-yolov8m.pt))
 
 ## Instalación
 
@@ -96,16 +99,24 @@ Jugar una partida completa contra Stockfish desde terminal (sin
 depender de Visión ni del brazo físico):
 
 ```powershell
-uv run chess-brain --stockfish-path "./src/chess_brain/engine_binaries/stockfish.exe" --human-color white --think-time 1.0
+uv run chess-brain
 ```
 
 Ejecutar el pipeline de visión sobre una imagen local:
 
 ```powershell
-uv run python ./src/chess_vision/main.py --image ./tests/fixtures/sample_frames/test_tablero.jpeg --model ./src/chess_vision/models/chess-model-yolov8m.pt
+uv run chess-vision
 ```
 
 ## Pruebas
+
+```powershell
+uv run poe chess-test-brain
+uv run poe chess-test-vision
+uv run poe chess-test
+```
+
+Alternativamente:
 
 ```powershell
 uv run pytest --cov
@@ -121,9 +132,6 @@ diseño e implementación.
 
 ### Limitaciones conocidas
 
-- El modelo de clasificación de piezas (M3) es un modelo pretrained de
-  terceros, sin licencia explícita declarada por su autor de origen.
-  Uso restringido a prototipo hasta confirmar términos de licencia.
 - La precisión del modelo de piezas no ha sido validada aún con
   hardware y fotografías reales del tablero físico.
 - El protocolo de comunicación entre ESP32-CAM, laptop y controlador

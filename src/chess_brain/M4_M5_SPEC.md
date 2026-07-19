@@ -9,7 +9,7 @@ Este SPEC cubre:
 - **`io_adapter.py`** (Entrada / Salida del subsistema)
 - **`vision_stub.py`** (simulador de Visión)
 - **`display.py`** (presentación en consola)
-- **`main.py`** (CLI de producto funcional)
+- **`brain_main.py`** (CLI de producto funcional)
 - **`__init__.py`** (superficie pública del paquete)
 
 Arquitectura: módulo Python (`chess_brain`) importado por el orquestador,
@@ -156,7 +156,7 @@ def render_move_result(result: MoveResult, mover_label: str) -> str:
     promoción, jaque/mate/tablas)."""
 ```
 
-### 4.6 `main.py` — CLI de producto funcional
+### 4.6 `brain_main.py` — CLI de producto funcional
 
 Producto standalone que permite jugar una partida completa contra
 Stockfish desde terminal, sin depender de Visión ni del brazo físico.
@@ -210,7 +210,7 @@ chess-robot-arm/
 │       ├── display.py             # presentación en consola
 │       ├── game_state.py         # M4
 │       ├── io_adapter.py          # Entrada / Salida
-│       ├── main.py                # CLI de producto funcional
+│       ├── brain_main.py                # CLI de producto funcional
 │       ├── brain_types.py               # VisionInput, MoveResult, excepciones
 │       ├── vision_stub.py         # simulador de Visión
 │       └── engine_binaries/        # almacenamiento de stockfish.exe
@@ -302,7 +302,7 @@ uv run chess-brain --stockfish-path "./src/chess_brain/engine_binaries/stockfish
 - Verificar la suite de tests actual contra este contrato (no fue
   compartida en esta revisión).
 - Cobertura de tests para `vision_stub.py`, `display.py` y los comandos
-  de `main.py` (hoy sin tests automatizados por ser CLI interactiva).
+  de `brain_main.py` (hoy sin tests automatizados por ser CLI interactiva).
 - Definir contrato del módulo 6 (Planificación de Movimiento) consumiendo
   `MoveResult`.
 - Definir política de color/`side_to_move` del robot para el primer

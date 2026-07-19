@@ -1,9 +1,9 @@
 """Pruebas de chess_vision.piece_classifier (M3, v2 — modelo pretrained comunitario)."""
 
 import numpy as np
-from fixtures.fake_yolo import FakeYOLOModel
 
 from chess_vision.piece_classifier import COMMUNITY_YOLOV8M_CLASS_MAP, detect_pieces
+from test_vision.fixtures.fake_yolo import FakeYOLOModel
 
 IMAGE = np.zeros((1200, 900, 3), dtype=np.uint8)
 

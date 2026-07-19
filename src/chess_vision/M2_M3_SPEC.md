@@ -14,7 +14,7 @@ Este documento cubre:
 - **`orientation.py`** (resolución de orientación / autocalibración)
 - **`pipeline.py`** (orquestación M2 → M3 → `VisionInput`)
 - **`camera_capture.py`** (lado receptor de M1)
-- **`main.py`** (producto funcional standalone: imagen local → `VisionInput`)
+- **`vision_main.py`** (producto funcional standalone: imagen local → `VisionInput`)
 - **`vision_types.py`** (contratos internos de `chess_vision`)
 - **`__init__.py`** (superficie pública del paquete)
 
@@ -251,7 +251,7 @@ def locate_board(
     grid_size: int = 8,
 ) -> tuple[BoardCorners, CameraOrientedGrid]:
     """Paso de M2 aislado — expuesto por separado para depuración
-    visual (usado directamente por main.py)."""
+    visual (usado directamente por vision_main.py)."""
 
 def calibrate_orientation(
     frame: RawFrame,
@@ -287,9 +287,9 @@ def fetch_frame(esp32_cam_url: str, timeout: float = 5.0) -> RawFrame:
     alcance."""
 ```
 
-### 6.7 `main.py` — Producto funcional standalone
+### 6.7 `vision_main.py` — Producto funcional standalone
 
-Análogo al `main.py` de `chess_brain` (M4-5): toma una imagen local,
+Análogo al `vision_main.py` de `chess_brain` (M4-5): toma una imagen local,
 corre el pipeline completo, imprime en consola cada etapa.
 
 **Argumentos:**
@@ -319,7 +319,7 @@ from chess_vision.vision_types import (
 )
 ```
 
-`locate_board` forma parte de la superficie pública porque `main.py` y
+`locate_board` forma parte de la superficie pública porque `vision_main.py` y
 la depuración visual lo necesitan directamente. Igual que en
 `chess_brain`, este es el único contrato que un futuro Orquestador
 (M10) debería asumir estable.
@@ -341,7 +341,7 @@ chess-robot-arm/
 │       ├── camera_capture.py
 │       └── models/
 │           └── chess-model-yolov8m.pt # descargado por el usuario, no versionado en git
-├── main.py                            # producto funcional standalone M2+M3
+├── vision_main.py                            # producto funcional standalone M2+M3
 ├── training/                          # scripts de fine-tuning incremental — no requeridos para el estado actual
 │   ├── train_board_detector.py        # no aplica al enfoque actual de M2 (ver §2)
 │   └── train_piece_classifier.py      # útil para fine-tuning incremental si hace falta
@@ -401,23 +401,23 @@ src/chess_vision/models/chess-model-yolov8m.pt
 ## 9. Cómo correr el producto standalone
 
 ```powershell
-uv run python main.py --image test_tablero.jpg --model src/chess_vision/models/chess-model-yolov8m.pt
+uv run python vision_main.py --image test_tablero.jpg --model src/chess_vision/models/chess-model-yolov8m.pt
 ```
 
 Si la foto que usas es la posición inicial de una partida, puedes
 pedir que la orientación se resuelva sola en vez de asumir `identity`:
 
 ```powershell
-uv run python main.py --image test_tablero.jpg --model src/chess_vision/models/chess-model-yolov8m.pt --calibrate
+uv run python vision_main.py --image test_tablero.jpg --model src/chess_vision/models/chess-model-yolov8m.pt --calibrate
 ```
 
-`main.py` imprime, en orden: la imagen de entrada y sus dimensiones,
+`vision_main.py` imprime, en orden: la imagen de entrada y sus dimensiones,
 las esquinas del tablero detectadas, cuántas piezas detectó el modelo
 y cuántas quedaron mapeadas a una casilla, y finalmente el
 `VisionInput` completo (tablero ASCII + estructura de datos exacta).
 
 **Primer paso recomendado con hardware/fotos propias:** correr
-`main.py` con una foto real y mirar el conteo de piezas detectadas vs.
+`vision_main.py` con una foto real y mirar el conteo de piezas detectadas vs.
 mapeadas, para tener una primera impresión de qué tan bien generaliza
 el modelo pretrained al tablero específico del usuario (ver §10).
 

@@ -10,13 +10,13 @@ probando, independientemente de qué haya realmente en esa foto.
 
 import cv2
 import pytest
-from fixtures.fake_yolo import FakeYOLOModel
 
 from chess_vision.orientation import STANDARD_START_MATRIX
 from chess_vision.pipeline import calibrate_orientation, locate_board, process_frame
 from chess_vision.vision_types import LowConfidenceDetectionError
+from test_vision.fixtures.fake_yolo import FakeYOLOModel
 
-FRAME = cv2.imread("tests/fixtures/sample_board.jpeg")
+FRAME = cv2.imread("tests/test_vision/fixtures/sample_frames/sample_board.jpeg")
 
 
 def _centroid(quad):
