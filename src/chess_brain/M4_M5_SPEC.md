@@ -46,7 +46,7 @@ class MoveResult:
     move_uci: str
     from_square: str
     to_square: str
-    piece: Literal["P", "N", "B", "R", "Q", "K"]
+    piece: Literal["P", "N", "B", "R", "Q", "K"] # En promoción: SIEMPRE "P" (pieza antes de promover, leída de board_before). El tipo resultante está en `promotion_piece`.
     is_capture: bool
     captured_piece: Literal["P", "N", "B", "R", "Q", "K"] | None
     is_castle: bool

@@ -20,6 +20,7 @@ chess-vision = "chess_vision.vision_main:run"
 [tool.poe.tasks]
 chess-test-brain = "pytest tests/test_brain/ --cov=src/chess_brain -v"
 chess-test-vision = "pytest tests/test_vision/ --cov=src/chess_vision -v"
+chess-test-planner = "pytest tests/test_planner/ --cov=src/chess_planner -v"
 chess-test = "pytest tests/ --cov=src/ -v"
 
 [dependency-groups]

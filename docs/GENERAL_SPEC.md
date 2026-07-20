@@ -33,7 +33,7 @@ físicamente mediante un brazo robótico con pinza.
 | 3   | Clasificación de piezas      | Identificar tipo/color de pieza por casilla                                                                   | **Implementado** (modelo pretrained de terceros, sin entrenamiento propio — ver nota al final de esta sección) | SPEC — chess_vision (M2-3) |
 | 4   | Estado del juego             | Mantener el `chess.Board` autoritativo, inferir la jugada humana desde la matriz de Visión, validar legalidad | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)  |
 | 5   | Motor de decisión            | Calcular la mejor jugada vía Stockfish                                                                        | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)  |
-| 6   | Planificación de movimiento  | Traducir la jugada en una secuencia de acciones físicas (normal / captura / enroque / promoción)              | Pendiente                                                                                                      | —                          |
+| 6   | Planificación de movimiento  | Traducir la jugada en una secuencia de acciones físicas (normal / captura / enroque / promoción)              | **Implementado**                                                                                               | SPEC — chess_planner (M6)  |
 | 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                                                           | Pendiente                                                                                                      | —                          |
 | 8   | Control de actuadores        | Ejecutar trayectoria + control de pinza (alturas de aproximación, apertura/cierre)                            | Pendiente                                                                                                      | —                          |
 | 9   | Verificación post-movimiento | Confirmar que el tablero físico coincide con el estado esperado                                               | Pendiente                                                                                                      | —                          |
@@ -70,9 +70,12 @@ físicamente mediante un brazo robótico con pinza.
   preservada por casilla. No son parte del contrato hacia `chess_brain`
   (eso sigue siendo `VisionInput`), pero quedan documentados como
   estables dentro de `chess_vision`.
+- **`PhysicalPlan`** (M6 → M7): secuencia ordenada de `PieceTransfer`
+  (origen, destino, pieza, color). Origen/destino pueden ser casillas
+  del tablero o zonas simbólicas (`Zone`: `DISCARD_WHITE/BLACK`,
+  `SPARE_WHITE/BLACK`).
 
-Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**
-y **SPEC — chess_vision (Módulos 2-3)**.
+Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, **SPEC — chess_vision (Módulos 2-3)** y **SPEC — chess_planner (Módulo 6)**.
 
 ### 4.2 Pendientes de definir
 
@@ -86,7 +89,9 @@ y **SPEC — chess_vision (Módulos 2-3)**.
   `M2_M3_SPEC.md`).
 - Confirmar licencia del modelo de piezas de terceros antes de
   cualquier despliegue más allá de prototipo/uso personal.
-- M6 → M7: formato de la "secuencia de acciones físicas".
+- M7 debe resolver cada `Location` de `PhysicalPlan` (casilla o
+  `Zone`) a coordenadas cartesianas — depende del mapeo de M0
+  (Calibración), todavía pendiente.
 - M7 → M8: formato de ángulos de articulación / trayectoria.
 - M8 → M9: formato del estado físico verificado.
 - M10: protocolo de comunicación entre ESP32-CAM, laptop y controlador del
@@ -122,11 +127,15 @@ y **SPEC — chess_vision (Módulos 2-3)**.
   (`vision_main.py`) que corre el pipeline completo sobre una imagen local y
   muestra entrada/salida exactas. Pendiente de validación con hardware
   y tablero físico reales por parte del usuario.
-- **Siguiente enfoque:** con M2-5 cubiertos de punta a punta (imagen →
-  posición → jugada del motor), el siguiente cuello de botella real del
-  proyecto es **Módulo 6 (Planificación de movimiento)** — traducir un
-  `MoveResult` en una secuencia de acciones físicas — ya que ahí empieza
-  a intervenir el hardware del brazo (M7-M8), todavía sin definir.
+- **M6 (Planificación de Movimiento)** implementado (`chess_planner`):
+  traduce `MoveResult` a `PhysicalPlan` para movimiento normal, captura,
+  enroque, captura al paso y promoción (política "solo Dama"). Cubierto
+  con 15 tests. Ver SPEC — chess_planner (Módulo 6).
+- **Siguiente enfoque:** con M2-6 cubiertos (imagen → posición → jugada
+  → plan físico simbólico), el cuello de botella real pasa a ser
+  **Módulo 0 (Calibración)**: M7 (Cinemática Inversa) no puede resolver
+  ninguna `Location` de `PhysicalPlan` a coordenadas sin ese mapeo, así
+  que M0 bloquea a M7 aunque en la tabla figure como módulo "0".
 
 ## 7. Pendientes generales del proyecto
 
@@ -137,3 +146,7 @@ y **SPEC — chess_vision (Módulos 2-3)**.
   movimiento de una partida (decisión de producto, no solo técnica).
 - Definir manejo de desincronización cuando Verificación (M9) detecte que
   el estado físico no coincide con lo esperado.
+- Definir coordenadas reales de las 4 zonas físicas nuevas introducidas
+  por M6 (`DISCARD_WHITE/BLACK`, `SPARE_WHITE/BLACK`) — corresponde a M0.
+- Gestión de inventario de piezas de repuesto (cuántas quedan, cuándo
+  reponerlas manualmente) — sin resolver, ver SPEC chess_planner §7.

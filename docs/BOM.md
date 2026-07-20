@@ -53,9 +53,11 @@ Subsistema intermedio que traduce los comandos lógicos provenientes del Host en
 
 Elementos pasivos que conforman la zona de interacción del robot y la infraestructura de montaje.
 
-| Componente                 | Especificación Técnica                                                                              |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Superficie de Juego**    | Tablero de ajedrez estándar clásico                                                                 |
-| **Piezas de Juego**        | Set de ajedrez estándar (Geometría y dimensiones compatibles con la apertura del efector final)     |
-| **Soporte de Percepción**  | Estructura rígida tipo pórtico o trípode para anclaje cenital del módulo ESP32-CAM                  |
-| **Conductores Eléctricos** | Set de cables Dupont (Jumpers macho-macho, macho-hembra) y cable de datos USB de longitud extendida |
+| Componente                            | Especificación Técnica                                                                                                      |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Superficie de Juego**               | Tablero de ajedrez estándar clásico                                                                                         |
+| **Piezas de Juego**                   | Set de ajedrez estándar (Geometría y dimensiones compatibles con la apertura del efector final)                             |
+| **Soporte de Percepción**             | Estructura rígida tipo pórtico o trípode para anclaje cenital del módulo ESP32-CAM                                          |
+| **Conductores Eléctricos**            | Set de cables Dupont (Jumpers macho-macho, macho-hembra) y cable de datos USB de longitud extendida                         |
+| **Zonas de Descarte**                 | 2x bandeja/contenedor rígido (una por color) — la pieza se libera por caída, sin necesidad de posicionamiento fino ni slots |
+| **Piezas de Repuesto para Promoción** | 2x Dama adicional (una por color)                                                                                           |

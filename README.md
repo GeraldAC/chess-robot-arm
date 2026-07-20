@@ -32,7 +32,7 @@ explícitos y tipados.
 | 3   | Clasificación de piezas      | Identificación de tipo/color por casilla (YOLOv8m pretrained)       | Implementado |
 | 4   | Estado del juego             | `chess.Board` autoritativo, inferencia de jugada humana, validación | Implementado |
 | 5   | Motor de decisión            | Cálculo de la mejor jugada vía Stockfish                            | Implementado |
-| 6   | Planificación de movimiento  | Traducción de la jugada a acciones físicas                          | Pendiente    |
+| 6   | Planificación de movimiento  | Traducción de la jugada a acciones físicas                          | Implementado |
 | 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                 | Pendiente    |
 | 8   | Control de actuadores        | Ejecución de trayectoria y control de pinza                         | Pendiente    |
 | 9   | Verificación post-movimiento | Confirmación del estado físico contra el esperado                   | Pendiente    |
@@ -42,6 +42,7 @@ Documentación detallada por subsistema:
 
 - `SPEC` — chess_vision (Módulos 2-3): detección del tablero y clasificación de piezas.
 - `SPEC` — chess_brain (Módulos 4-5): estado del juego y motor de decisión.
+- `SPEC` — chess_planner (Módulo 6): planificación de movimiento físico.
 - `SPEC` general: alcance, contratos entre módulos y decisiones transversales.
 
 ## Hardware
@@ -60,10 +61,12 @@ chess-robot-arm/
 ├── .python-version
 ├── src/
 │   ├── chess_brain/       # M4-5: estado del juego, motor de decisión, CLI
-│   └── chess_vision/      # M2-3: detección de tablero, clasificación de piezas
+│   ├── chess_vision/      # M2-3: detección de tablero, clasificación de piezas
+│   └── chess_planner/     # M6: planificación de movimiento físico
 ├── tests/
 │   ├── test_brain/
-│   └── test_vision/
+│   ├── test_vision/
+│   └── test_planner/
 └── .gitignore
 ```
 
@@ -113,6 +116,7 @@ uv run chess-vision
 ```powershell
 uv run poe chess-test-brain
 uv run poe chess-test-vision
+uv run poe chess-test-planner
 uv run poe chess-test
 ```
 
@@ -124,11 +128,11 @@ uv run pytest --cov
 
 ## Estado del proyecto
 
-Los módulos 2 a 5 (visión y motor de decisión) están implementados y
-validados de punta a punta mediante simuladores y pruebas automatizadas.
-Los módulos 6 a 10 (planificación de movimiento, cinemática inversa,
-control de actuadores, verificación y orquestación) están pendientes de
-diseño e implementación.
+Los módulos 2 a 6 (visión, motor de decisión y planificación de
+movimiento) están implementados y validados mediante simuladores y
+pruebas automatizadas. Los módulos 0, 7, 8, 9 y 10 (calibración,
+cinemática inversa, control de actuadores, verificación y
+orquestación) están pendientes de diseño e implementación.
 
 ### Limitaciones conocidas
 
@@ -136,6 +140,9 @@ diseño e implementación.
   hardware y fotografías reales del tablero físico.
 - El protocolo de comunicación entre ESP32-CAM, laptop y controlador
   del brazo no está definido.
+- M6 asume 4 zonas físicas nuevas (bandejas de descarte, reserva de
+  piezas para promoción) cuyas coordenadas reales aún no están
+  definidas — pendiente de M0.
 
 ## Licencia
 
