@@ -7,8 +7,27 @@ square_corners:
   h1: { x_mm: 280.0, y_mm: 0.0, z_mm: 10.0 }
   h8: { x_mm: 280.0, y_mm: 280.0, z_mm: 10.0 }
 
+# ZONAS FUERA DEL TABLERO
+# Lógica Cinemática, Ergonomía y de Juego Aplicada:
+# Supuesto Principal: Se asume que el jugador humano es DIESTRO.
+# La distribución en el eje X (izquierda x = -50.0 mm, derecha x = 330.0 mm) se adaptó 
+# para optimizar el envolvente de trabajo del brazo, despejar el canal de visión y 
+# evitar colisiones con el espacio de maniobra natural de la mano dominante del humano.
+#
+# 1. Lado de Blancas (y < 0, cerca de Filas 1-2):
+#    - DISCARD_WHITE: Cementerio de piezas blancas retiradas de la partida. Ubicado
+#      a la derecha (x = 330.0) para mantener despejado el flanco izquierdo.
+#    - SPARE_BLACK: Reserva de Dama negra. Los peones negros avanzan hacia la Fila 1 (y ≈ 0).
+#      Ubicada a la izquierda (x = -50.0), minimiza el recorrido del brazo para tomar
+#      la Dama de repuesto e insertarla en Fila 1.
+#
+# 2. Lado de Negras (y > 280, cerca de Filas 7-8):
+#    - SPARE_WHITE: Reserva de Dama blanca. Los peones blancos avanzan hacia la Fila 8 (y ≈ 280).
+#      Ubicada a la derecha (x = 330.0, y = 330.0), permite una coronación inmediata
+#      en la zona activa del brazo sin cruzar todo el tablero.
+#    - DISCARD_BLACK: Cementerio de piezas negras retiradas de la partida (x = -50.0).
 zones:
-  DISCARD_WHITE: { x_mm: -50.0, y_mm: -50.0, z_mm: 40.0 }
-  DISCARD_BLACK: { x_mm: 330.0, y_mm: -50.0, z_mm: 40.0 }
-  SPARE_WHITE: { x_mm: -50.0, y_mm: 330.0, z_mm: 40.0 }
-  SPARE_BLACK: { x_mm: 330.0, y_mm: 330.0, z_mm: 40.0 }
+  DISCARD_WHITE: { x_mm: 330.0, y_mm: -50.0, z_mm: 40.0 }
+  SPARE_BLACK: { x_mm: -50.0, y_mm: -50.0, z_mm: 40.0 }
+  SPARE_WHITE: { x_mm: 330.0, y_mm: 330.0, z_mm: 40.0 }
+  DISCARD_BLACK: { x_mm: -50.0, y_mm: 330.0, z_mm: 40.0 }

@@ -32,7 +32,10 @@ class TestLoadCalibrationInput:
         assert corners.h8 == ArmPoint(280.0, 280.0, 10.0)
 
         assert set(zones.keys()) == set(Zone)
-        assert zones[Zone.DISCARD_WHITE] == ArmPoint(-50.0, -50.0, 40.0)
+        assert zones[Zone.DISCARD_WHITE] == ArmPoint(330.0, -50.0, 40.0)
+        assert zones[Zone.SPARE_BLACK] == ArmPoint(-50.0, -50.0, 40.0)
+        assert zones[Zone.SPARE_WHITE] == ArmPoint(330.0, 330.0, 40.0)
+        assert zones[Zone.DISCARD_BLACK] == ArmPoint(-50.0, 330.0, 40.0)
 
     def test_missing_file_raises(self):
         with pytest.raises(IncompleteCalibrationInputError):
