@@ -1,0 +1,14 @@
+# Fixture de prueba: tablero cuadrado de 40mm/casilla, alineado a los ejes
+# X/Y del brazo, sin inclinación (z constante). Valores de ejemplo, no
+# medidos de un tablero real.
+square_corners:
+  a1: { x_mm: 0.0, y_mm: 0.0, z_mm: 10.0 }
+  a8: { x_mm: 0.0, y_mm: 280.0, z_mm: 10.0 }
+  h1: { x_mm: 280.0, y_mm: 0.0, z_mm: 10.0 }
+  h8: { x_mm: 280.0, y_mm: 280.0, z_mm: 10.0 }
+
+zones:
+  DISCARD_WHITE: { x_mm: -50.0, y_mm: -50.0, z_mm: 40.0 }
+  DISCARD_BLACK: { x_mm: 330.0, y_mm: -50.0, z_mm: 40.0 }
+  SPARE_WHITE: { x_mm: -50.0, y_mm: 330.0, z_mm: 40.0 }
+  SPARE_BLACK: { x_mm: 330.0, y_mm: 330.0, z_mm: 40.0 }

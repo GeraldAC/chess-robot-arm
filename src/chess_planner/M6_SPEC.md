@@ -177,8 +177,6 @@ ya presente en el proyecto).
 - Inventario físico de piezas de repuesto: cuántas quedan disponibles en
   `SPARE_WHITE`/`SPARE_BLACK` y cuándo reponerlas manualmente — no
   gestionado por software en v1.
-- Actualizar `BOM.md` §5 con las 4 zonas físicas nuevas (2 bandejas de
-  descarte + 2 reservas de Dama).
 - Definir las coordenadas reales de esas 4 zonas — corresponde a M0
   (Calibración), fuera de alcance de este documento.
 - Contrato M6→M7: `PhysicalPlan` (secuencia de `PieceTransfer`) es la

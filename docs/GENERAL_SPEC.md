@@ -25,19 +25,19 @@ físicamente mediante un brazo robótico con pinza.
 
 ## 3. Arquitectura general — Módulos del sistema
 
-| #   | Módulo                       | Responsabilidad                                                                                               | Estado                                                                                                         | Spec de referencia         |
-| --- | ---------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| 0   | Calibración                  | Mapeo píxel ↔ casilla ↔ coordenada del brazo                                                                  | Pendiente                                                                                                      | —                          |
-| 1   | Captura de imagen            | ESP32-CAM obtiene el frame y lo envía a la laptop                                                             | Pendiente                                                                                                      | —                          |
-| 2   | Detección del tablero        | Localizar las 64 casillas en la imagen                                                                        | **Implementado** (detección clásica con OpenCV, sin ML — ver nota al final de esta sección)                    | SPEC — chess_vision (M2-3) |
-| 3   | Clasificación de piezas      | Identificar tipo/color de pieza por casilla                                                                   | **Implementado** (modelo pretrained de terceros, sin entrenamiento propio — ver nota al final de esta sección) | SPEC — chess_vision (M2-3) |
-| 4   | Estado del juego             | Mantener el `chess.Board` autoritativo, inferir la jugada humana desde la matriz de Visión, validar legalidad | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)  |
-| 5   | Motor de decisión            | Calcular la mejor jugada vía Stockfish                                                                        | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)  |
-| 6   | Planificación de movimiento  | Traducir la jugada en una secuencia de acciones físicas (normal / captura / enroque / promoción)              | **Implementado**                                                                                               | SPEC — chess_planner (M6)  |
-| 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                                                           | Pendiente                                                                                                      | —                          |
-| 8   | Control de actuadores        | Ejecutar trayectoria + control de pinza (alturas de aproximación, apertura/cierre)                            | Pendiente                                                                                                      | —                          |
-| 9   | Verificación post-movimiento | Confirmar que el tablero físico coincide con el estado esperado                                               | Pendiente                                                                                                      | —                          |
-| 10  | Orquestador / comunicación   | Coordinar el ciclo completo y la comunicación entre dispositivos                                              | Pendiente                                                                                                      | —                          |
+| #   | Módulo                       | Responsabilidad                                                                                               | Estado                                                                                                         | Spec de referencia            |
+| --- | ---------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| 0   | Calibración                  | Mapeo píxel ↔ casilla ↔ coordenada del brazo                                                                  | **Implementado**                                                                                               | SPEC — chess_calibration (M0) |
+| 1   | Captura de imagen            | ESP32-CAM obtiene el frame y lo envía a la laptop                                                             | Pendiente                                                                                                      | —                             |
+| 2   | Detección del tablero        | Localizar las 64 casillas en la imagen                                                                        | **Implementado** (detección clásica con OpenCV, sin ML — ver nota al final de esta sección)                    | SPEC — chess_vision (M2-3)    |
+| 3   | Clasificación de piezas      | Identificar tipo/color de pieza por casilla                                                                   | **Implementado** (modelo pretrained de terceros, sin entrenamiento propio — ver nota al final de esta sección) | SPEC — chess_vision (M2-3)    |
+| 4   | Estado del juego             | Mantener el `chess.Board` autoritativo, inferir la jugada humana desde la matriz de Visión, validar legalidad | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)     |
+| 5   | Motor de decisión            | Calcular la mejor jugada vía Stockfish                                                                        | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)     |
+| 6   | Planificación de movimiento  | Traducir la jugada en una secuencia de acciones físicas (normal / captura / enroque / promoción)              | **Implementado**                                                                                               | SPEC — chess_planner (M6)     |
+| 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                                                           | Pendiente                                                                                                      | —                             |
+| 8   | Control de actuadores        | Ejecutar trayectoria + control de pinza (alturas de aproximación, apertura/cierre)                            | Pendiente                                                                                                      | —                             |
+| 9   | Verificación post-movimiento | Confirmar que el tablero físico coincide con el estado esperado                                               | Pendiente                                                                                                      | —                             |
+| 10  | Orquestador / comunicación   | Coordinar el ciclo completo y la comunicación entre dispositivos                                              | Pendiente                                                                                                      | —                             |
 
 > Nota: dentro de M4-5 existen además mini-módulos de interfaz (Entrada,
 > Salida, simulador de Visión, presentación en consola, CLI de producto)
@@ -74,8 +74,11 @@ físicamente mediante un brazo robótico con pinza.
   (origen, destino, pieza, color). Origen/destino pueden ser casillas
   del tablero o zonas simbólicas (`Zone`: `DISCARD_WHITE/BLACK`,
   `SPARE_WHITE/BLACK`).
+- **`CalibrationMap`** (M0 → M7): `dict[Location, ArmPoint]` con las 64
+  casillas más las 4 `Zone` de `chess_planner`, resueltas a coordenadas
+  cartesianas del brazo vía medición manual.
 
-Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, **SPEC — chess_vision (Módulos 2-3)** y **SPEC — chess_planner (Módulo 6)**.
+Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, **SPEC — chess_vision (Módulos 2-3)**, **SPEC — chess_planner (Módulo 6)** y **SPEC — chess_calibration (Módulo 0)**.
 
 ### 4.2 Pendientes de definir
 
@@ -90,8 +93,9 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
 - Confirmar licencia del modelo de piezas de terceros antes de
   cualquier despliegue más allá de prototipo/uso personal.
 - M7 debe resolver cada `Location` de `PhysicalPlan` (casilla o
-  `Zone`) a coordenadas cartesianas — depende del mapeo de M0
-  (Calibración), todavía pendiente.
+  `Zone`) a coordenadas cartesianas, consumiendo el `CalibrationMap`
+  que ya entrega M0. El contrato de entrada a M7 queda cerrado; falta
+  implementar M7 en sí (cinemática inversa).
 - M7 → M8: formato de ángulos de articulación / trayectoria.
 - M8 → M9: formato del estado físico verificado.
 - M10: protocolo de comunicación entre ESP32-CAM, laptop y controlador del
@@ -118,24 +122,29 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
 
 ## 6. Estado actual y siguiente enfoque
 
-- **M4 (Estado del Juego)** y **M5 (Motor de Decisión)** implementados
-  y validados end-to-end con Stockfish real, incluyendo un CLI funcional
-  para jugar partidas completas sin depender de Visión real.
+- **M0 (Calibración)** implementado (`chess_calibration`): resuelve
+  `Location -> ArmPoint` (64 casillas + 4 zonas) a partir de medición
+  manual del tablero y las zonas físicas, con validación de geometría
+  y persistencia de sesión (recalibración una vez por partida). Cubierto
+  con 28 tests. Ver SPEC — chess_calibration (Módulo 0).
 - **M2 (Detección del tablero)** y **M3 (Clasificación de piezas)**
   implementados sobre soluciones ya existentes de la comunidad (sin
   entrenamiento propio), con un producto funcional standalone
   (`vision_main.py`) que corre el pipeline completo sobre una imagen local y
   muestra entrada/salida exactas. Pendiente de validación con hardware
   y tablero físico reales por parte del usuario.
+- **M4 (Estado del Juego)** y **M5 (Motor de Decisión)** implementados
+  y validados end-to-end con Stockfish real, incluyendo un CLI funcional
+  para jugar partidas completas sin depender de Visión real.
 - **M6 (Planificación de Movimiento)** implementado (`chess_planner`):
   traduce `MoveResult` a `PhysicalPlan` para movimiento normal, captura,
   enroque, captura al paso y promoción (política "solo Dama"). Cubierto
   con 15 tests. Ver SPEC — chess_planner (Módulo 6).
-- **Siguiente enfoque:** con M2-6 cubiertos (imagen → posición → jugada
-  → plan físico simbólico), el cuello de botella real pasa a ser
-  **Módulo 0 (Calibración)**: M7 (Cinemática Inversa) no puede resolver
-  ninguna `Location` de `PhysicalPlan` a coordenadas sin ese mapeo, así
-  que M0 bloquea a M7 aunque en la tabla figure como módulo "0".
+- **Siguiente enfoque:** con M0 y M2-6 cubiertos (calibración física +
+  imagen → posición → jugada → plan físico simbólico, resuelto hasta
+  coordenadas cartesianas), el cuello de botella pasa a ser **Módulo 7
+  (Cinemática Inversa)**: ya tiene un contrato de entrada cerrado
+  (`CalibrationMap`) contra el cual diseñarse.
 
 ## 7. Pendientes generales del proyecto
 
@@ -146,7 +155,8 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
   movimiento de una partida (decisión de producto, no solo técnica).
 - Definir manejo de desincronización cuando Verificación (M9) detecte que
   el estado físico no coincide con lo esperado.
-- Definir coordenadas reales de las 4 zonas físicas nuevas introducidas
-  por M6 (`DISCARD_WHITE/BLACK`, `SPARE_WHITE/BLACK`) — corresponde a M0.
+- Ejecutar el protocolo de medición física de M0 (`M0_SPEC.md` §4) con
+  el tablero, las zonas y el brazo reales — el mecanismo ya existe,
+  falta la medición sobre el hardware definitivo.
 - Gestión de inventario de piezas de repuesto (cuántas quedan, cuándo
   reponerlas manualmente) — sin resolver, ver SPEC chess_planner §7.

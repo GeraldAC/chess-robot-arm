@@ -26,7 +26,7 @@ explícitos y tipados.
 
 | #   | Módulo                       | Responsabilidad                                                     | Estado       |
 | --- | ---------------------------- | ------------------------------------------------------------------- | ------------ |
-| 0   | Calibración                  | Mapeo píxel ↔ casilla ↔ coordenada del brazo                        | Pendiente    |
+| 0   | Calibración                  | Mapeo píxel ↔ casilla ↔ coordenada del brazo                        | Implementado |
 | 1   | Captura de imagen            | ESP32-CAM obtiene el frame y lo envía a la laptop                   | Pendiente    |
 | 2   | Detección del tablero        | Localización de las 64 casillas (OpenCV clásico)                    | Implementado |
 | 3   | Clasificación de piezas      | Identificación de tipo/color por casilla (YOLOv8m pretrained)       | Implementado |
@@ -40,6 +40,7 @@ explícitos y tipados.
 
 Documentación detallada por subsistema:
 
+- `SPEC` — chess_calibration (Módulo 0): calibración física del brazo (casilla/zona ↔ coordenada cartesiana).
 - `SPEC` — chess_vision (Módulos 2-3): detección del tablero y clasificación de piezas.
 - `SPEC` — chess_brain (Módulos 4-5): estado del juego y motor de decisión.
 - `SPEC` — chess_planner (Módulo 6): planificación de movimiento físico.
@@ -60,13 +61,15 @@ chess-robot-arm/
 ├── README.md
 ├── .python-version
 ├── src/
-│   ├── chess_brain/       # M4-5: estado del juego, motor de decisión, CLI
-│   ├── chess_vision/      # M2-3: detección de tablero, clasificación de piezas
-│   └── chess_planner/     # M6: planificación de movimiento físico
+│   ├── chess_brain/        # M4-5: estado del juego, motor de decisión, CLI
+│   ├── chess_vision/       # M2-3: detección de tablero, clasificación de piezas
+│   ├── chess_planner/      # M6: planificación de movimiento físico
+│   └── chess_calibration/  # M0: calibración física del brazo
 ├── tests/
 │   ├── test_brain/
 │   ├── test_vision/
-│   └── test_planner/
+│   ├── test_planner/
+│   └── test_calibration/
 └── .gitignore
 ```
 
@@ -108,7 +111,13 @@ uv run chess-brain
 Ejecutar el pipeline de visión sobre una imagen local:
 
 ```powershell
-uv run chess-vision
+uv run chess-vision --plot
+```
+
+Ejecutar calibración sobre una muestra:
+
+```powershell
+uv run chess-calibration --plot
 ```
 
 ## Pruebas
@@ -117,6 +126,7 @@ uv run chess-vision
 uv run poe chess-test-brain
 uv run poe chess-test-vision
 uv run poe chess-test-planner
+uv run poe chess-test-calibration
 uv run poe chess-test
 ```
 
@@ -128,11 +138,12 @@ uv run pytest --cov
 
 ## Estado del proyecto
 
-Los módulos 2 a 6 (visión, motor de decisión y planificación de
-movimiento) están implementados y validados mediante simuladores y
-pruebas automatizadas. Los módulos 0, 7, 8, 9 y 10 (calibración,
-cinemática inversa, control de actuadores, verificación y
-orquestación) están pendientes de diseño e implementación.
+Los módulos 0 y 2 a 6 (calibración, visión, motor de decisión y
+planificación de movimiento) están implementados y validados mediante
+simuladores y pruebas automatizadas. Los módulos 1, 7, 8, 9 y 10
+(captura de imagen, cinemática inversa, control de actuadores,
+verificación y orquestación) están pendientes de diseño e
+implementación.
 
 ### Limitaciones conocidas
 
@@ -141,8 +152,10 @@ orquestación) están pendientes de diseño e implementación.
 - El protocolo de comunicación entre ESP32-CAM, laptop y controlador
   del brazo no está definido.
 - M6 asume 4 zonas físicas nuevas (bandejas de descarte, reserva de
-  piezas para promoción) cuyas coordenadas reales aún no están
-  definidas — pendiente de M0.
+  piezas para promoción). M0 ya define cómo medirlas y resolverlas a
+  coordenadas del brazo (`CalibrationMap`), pero falta ejecutar el
+  protocolo de medición manual (`M0_SPEC.md` §4) sobre el hardware
+  físico definitivo — no se ha hecho aún.
 
 ## Licencia
 
