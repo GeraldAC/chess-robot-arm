@@ -9,25 +9,29 @@ square_corners:
 
 # ZONAS FUERA DEL TABLERO
 # Lógica Cinemática, Ergonomía y de Juego Aplicada:
-# Supuesto Principal: Se asume que el jugador humano es DIESTRO.
-# La distribución en el eje X (izquierda x = -50.0 mm, derecha x = 330.0 mm) se adaptó 
-# para optimizar el envolvente de trabajo del brazo, despejar el canal de visión y 
-# evitar colisiones con el espacio de maniobra natural de la mano dominante del humano.
+# Supuesto Principal: Ajuste por Alcance Físico del Brazo y Jugador Humano DIESTRO.
 #
-# 1. Lado de Blancas (y < 0, cerca de Filas 1-2):
-#    - DISCARD_WHITE: Cementerio de piezas blancas retiradas de la partida. Ubicado
-#      a la derecha (x = 330.0) para mantener despejado el flanco izquierdo.
-#    - SPARE_BLACK: Reserva de Dama negra. Los peones negros avanzan hacia la Fila 1 (y ≈ 0).
-#      Ubicada a la izquierda (x = -50.0), minimiza el recorrido del brazo para tomar
-#      la Dama de repuesto e insertarla en Fila 1.
+# 1. Optimización Cinemática (Envolvente de Trabajo):
+#    Se ajustaron las coordenadas Y desde los extremos lejanos (y = -50.0 mm y y = 330.0 mm)
+#    hacia posiciones intermedias laterales (y = 80.0 mm y y = 200.0 mm). Esto reduce la 
+#    distancia radial total al centro/base del robot, evitando singularidades cinemáticas,
+#    pérdida de torque por sobreextensión y garantizando que todas las zonas permanezcan
+#    dentro del volumen de trabajo alcanzable del manipulador.
 #
-# 2. Lado de Negras (y > 280, cerca de Filas 7-8):
-#    - SPARE_WHITE: Reserva de Dama blanca. Los peones blancos avanzan hacia la Fila 8 (y ≈ 280).
-#      Ubicada a la derecha (x = 330.0, y = 330.0), permite una coronación inmediata
-#      en la zona activa del brazo sin cruzar todo el tablero.
-#    - DISCARD_BLACK: Cementerio de piezas negras retiradas de la partida (x = -50.0).
+# 2. Distribución Lateral por Flancos:
+#    - FLANCO DERECHO (x = 360.0 mm):
+#      * DISCARD_WHITE (y = 80.0 mm): Cementerio de piezas blancas. Ubicado en el flanco
+#        derecho a la altura de las Filas 2-3 para despejar el campo visual del jugador.
+#      * SPARE_WHITE (y = 200.0 mm): Reserva de Dama blanca. Situada cerca de la Fila 8
+#        (y ≈ 280 mm) para realizar trayectorias de coronación cortas y eficientes cuando
+#        un peón blanco alcance el extremo opuesto.
+#
+#    - FLANCO IZQUIERDO (x = -80.0 mm):
+#      * SPARE_BLACK (y = 80.0 mm): Reserva de Dama negra. Situada cerca de la Fila 1
+#        (y ≈ 0 mm) para minimizar el desplazamiento del brazo al coronar peones negros.
+#      * DISCARD_BLACK (y = 200.0 mm): Cementerio de piezas negras retiradas de la partida.
 zones:
-  DISCARD_WHITE: { x_mm: 330.0, y_mm: -50.0, z_mm: 40.0 }
-  SPARE_BLACK: { x_mm: -50.0, y_mm: -50.0, z_mm: 40.0 }
-  SPARE_WHITE: { x_mm: 330.0, y_mm: 330.0, z_mm: 40.0 }
-  DISCARD_BLACK: { x_mm: -50.0, y_mm: 330.0, z_mm: 40.0 }
+  DISCARD_WHITE: { x_mm: 360.0, y_mm: 80.0, z_mm: 40.0 }
+  SPARE_BLACK: { x_mm: -80.0, y_mm: 80.0, z_mm: 40.0 }
+  SPARE_WHITE: { x_mm: 360.0, y_mm: 200.0, z_mm: 40.0 }
+  DISCARD_BLACK: { x_mm: -80.0, y_mm: 200.0, z_mm: 40.0 }

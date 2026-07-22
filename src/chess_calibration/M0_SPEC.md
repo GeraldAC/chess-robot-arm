@@ -256,17 +256,22 @@ el futuro Orquestador (M10) deberían asumir estable.
 ## 7. Formato del archivo de entrada (`--input`)
 
 ```yaml
+# Las zonas se concentran en los tramos laterales medios del tablero.
+# Flanco Izquierdo: Asignado a las piezas Negras (SPARE_BLACK y DISCARD_BLACK).
+# Flanco Derecho: Asignado a las piezas Blancas (DISCARD_WHITE y SPARE_WHITE).
+# SPARE: Se ubican alineadas al sector del tablero hacia donde avanza cada bando a coronar.
+# DISCARD: Ocupan las posiciones laterales contiguas libres para retirar piezas capturadas.
 square_corners:
-  a1: { x_mm: 120.0, y_mm: -80.0, z_mm: 15.0 }
-  a8: { x_mm: 120.0, y_mm: 200.0, z_mm: 16.0 }
-  h1: { x_mm: 400.0, y_mm: -80.0, z_mm: 14.0 }
-  h8: { x_mm: 400.0, y_mm: 200.0, z_mm: 15.0 }
+  a1: { x_mm: 0.0, y_mm: 0.0, z_mm: 10.0 }
+  a8: { x_mm: 0.0, y_mm: 280.0, z_mm: 10.0 }
+  h1: { x_mm: 280.0, y_mm: 0.0, z_mm: 10.0 }
+  h8: { x_mm: 280.0, y_mm: 280.0, z_mm: 10.0 }
 
 zones:
-  DISCARD_WHITE: { x_mm: 60.0, y_mm: -120.0, z_mm: 40.0 }
-  DISCARD_BLACK: { x_mm: 460.0, y_mm: -120.0, z_mm: 40.0 }
-  SPARE_WHITE: { x_mm: 60.0, y_mm: 220.0, z_mm: 40.0 }
-  SPARE_BLACK: { x_mm: 460.0, y_mm: 220.0, z_mm: 40.0 }
+  DISCARD_WHITE: { x_mm: 360.0, y_mm: 80.0, z_mm: 40.0 }
+  SPARE_BLACK: { x_mm: -80.0, y_mm: 80.0, z_mm: 40.0 }
+  SPARE_WHITE: { x_mm: 360.0, y_mm: 200.0, z_mm: 40.0 }
+  DISCARD_BLACK: { x_mm: -80.0, y_mm: 200.0, z_mm: 40.0 }
 ```
 
 Los valores mostrados son de ejemplo, no medidos.
@@ -345,5 +350,3 @@ librería estándar.
 | `test_calibration_geometry.py` | Interpolación bilineal de las 64 casillas; casillas-esquina coinciden exactamente con la medición; tolera tablero inclinado (z variable); geometría dentro/fuera de tolerancia; detección de tablero no rectangular vía diagonales; `ValueError` en parámetros inválidos                                 |
 | `test_calibration_io.py`       | Carga de YAML válido; archivo/corner/zona faltante, punto malformado o YAML inválido → `IncompleteCalibrationInputError`; `build_calibration_map` produce 68 entradas; geometría inválida se propaga; round-trip de sesión JSON; sesión faltante/incompleta/corrupta → `CalibrationSessionNotFoundError` |
 | `test_calibration_main.py`     | CLI end-to-end: éxito con 68 entradas y archivo de sesión creado; geometría inválida retorna código de salida 1 sin crear archivo; archivo de entrada faltante retorna código de salida 1                                                                                                                |
-
-28 tests, ~98% de cobertura de líneas.
