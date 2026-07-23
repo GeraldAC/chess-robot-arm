@@ -13,8 +13,9 @@ físicamente mediante un brazo robótico con pinza.
 
 - Tablero de ajedrez clásico, piezas físicas estándar.
 - ESP32-CAM para captura de imágenes del tablero.
-- Brazo robótico con pinza (gripper). Controlador físico dedicado aún no
-  definido (pendiente, ver Módulo 8).
+- Brazo robótico con pinza (gripper), controlado por Arduino UNO +
+  PCA9685 vía Serial/USB — definido e implementado en M8, ver
+  `M8_SPEC.md` §2.1.
 - Laptop (Windows 11): ejecuta Visión, Motor de Decisión y Orquestador.
 
 **Entorno de desarrollo:**
@@ -35,7 +36,7 @@ físicamente mediante un brazo robótico con pinza.
 | 5   | Motor de decisión            | Calcular la mejor jugada vía Stockfish                                                                        | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)     |
 | 6   | Planificación de movimiento  | Traducir la jugada en una secuencia de acciones físicas (normal / captura / enroque / promoción)              | **Implementado**                                                                                               | SPEC — chess_planner (M6)     |
 | 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                                                           | **Implementado**                                                                                               | SPEC — chess_kinematics (M7)  |
-| 8   | Control de actuadores        | Ejecutar trayectoria + control de pinza (alturas de aproximación, apertura/cierre)                            | Pendiente                                                                                                      | —                             |
+| 8   | Control de actuadores        | Ejecutar trayectoria + control de pinza (alturas de aproximación, apertura/cierre)                            | **Implementado**                                                                                               | SPEC — chess_actuators (M8)   |
 | 9   | Verificación post-movimiento | Confirmar que el tablero físico coincide con el estado esperado                                               | Pendiente                                                                                                      | —                             |
 | 10  | Orquestador / comunicación   | Coordinar el ciclo completo y la comunicación entre dispositivos                                              | Pendiente                                                                                                      | —                             |
 
@@ -82,8 +83,14 @@ físicamente mediante un brazo robótico con pinza.
   waypoint `TRANSIT`/`GRASP`). Resuelve el pendiente "M7 → M8: formato
   de ángulos de articulación / trayectoria" de la versión anterior de
   este documento.
+- **`ExecutionReport`** (M8 → M9): resumen de qué `ArmWaypoint` se
+  enviaron y confirmó el microcontrolador durante la ejecución de una
+  `ArmTrajectory`. Resuelve parcialmente el pendiente "M8 → M9: formato
+  del estado físico verificado" — NO es verificación física real; M9
+  sigue siendo responsable de comparar el tablero físico contra el
+  estado esperado vía visión.
 
-Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, **SPEC — chess_vision (Módulos 2-3)**, **SPEC — chess_planner (Módulo 6)**, **SPEC — chess_calibration (Módulo 0)** y **SPEC — chess_kinematics (Módulo 7)**.
+Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, **SPEC — chess_vision (Módulos 2-3)**, **SPEC — chess_planner (Módulo 6)**, **SPEC — chess_calibration (Módulo 0)**, **SPEC — chess_kinematics (Módulo 7)** y **SPEC — chess_actuators (Módulo 8)**.
 
 ### 4.2 Pendientes de definir
 
@@ -97,12 +104,13 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
   `M2_M3_SPEC.md`).
 - Confirmar licencia del modelo de piezas de terceros antes de
   cualquier despliegue más allá de prototipo/uso personal.
-- M8 debe definir cómo interpolar/temporizar entre los `ArmWaypoint`
-  consecutivos de `ArmTrajectory`, y qué hacer si la ejecución física
-  falla a mitad de una trayectoria (ver `M7_SPEC.md` §7).
-- M8 → M9: formato del estado físico verificado.
-- M10: protocolo de comunicación entre ESP32-CAM, laptop y controlador del
-  brazo (WiFi/HTTP, Serial, MQTT — no decidido aún).
+- M9 debe definir cómo compara el estado físico verificado (vía
+  visión) contra el `ExecutionReport`/estado esperado, y qué hace el
+  Orquestador ante una discrepancia — la estructura de `ExecutionReport`
+  (M8) ya está definida, pero no reemplaza la verificación real.
+- M10: protocolo de comunicación entre ESP32-CAM y la laptop (WiFi/HTTP
+  — no decidido aún). El protocolo laptop↔controlador del brazo ya
+  quedó resuelto en M8 (Serial/USB).
 
 ## 5. Decisiones arquitectónicas transversales
 
@@ -122,6 +130,13 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
   de percepción antes de asumir que hace falta entrenar algo propio —
   mismo espíritu YAGNI ya declarado para la arquitectura de proceso
   único.
+- **Excepción al patrón mono-lenguaje**: M8 es el primer módulo que no
+  es puro Python — incluye un firmware C/C++ para el Arduino
+  (`firmware/chess_arm_controller/`), fuera de `src/` y fuera del
+  alcance de `uv`. El contrato Python (`chess_actuators`) sigue las
+  mismas convenciones que el resto del proyecto; el firmware se rige
+  por el protocolo Serial documentado en `M8_SPEC.md` §3, no por
+  `pytest`.
 
 ## 6. Estado actual y siguiente enfoque
 
@@ -148,17 +163,26 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
   `JointMap`) y traduce `PhysicalPlan` a `ArmTrajectory` (waypoints con
   altura de tránsito segura). Cubierto con 21 tests. Ver SPEC —
   chess_kinematics (Módulo 7).
-- **Siguiente enfoque:** con M0 y M2-7 cubiertos (calibración física +
+- **M8 (Control de Actuadores)** implementado (`chess_actuators`):
+  traduce `ArmTrajectory` a comandos Serial hacia Arduino UNO + PCA9685
+  (protocolo en `M8_SPEC.md` §3), sin interpolación fina — temporización
+  a nivel de waypoint — y con reintentos acotados + congelamiento en
+  sitio ante fallos de comunicación. Incluye firmware de referencia
+  (`firmware/chess_arm_controller/`). Cubierto con 44 tests. Ver SPEC —
+  chess_actuators (Módulo 8).
+- **Siguiente enfoque:** con M0 y M2-8 cubiertos (calibración física →
   imagen → posición → jugada → plan físico simbólico → ángulos de
-  articulación), el cuello de botella pasa a ser **Módulo 8 (Control de
-  Actuadores)**: ya tiene un contrato de entrada cerrado
-  (`ArmTrajectory`) contra el cual diseñarse.
+  articulación → ejecución física sobre el brazo), el cuello de botella
+  pasa a ser **Módulo 9 (Verificación post-movimiento)**: ya tiene un
+  contrato de entrada cerrado (`ExecutionReport`, M8 → M9) contra el
+  cual diseñarse, aunque sigue dependiendo de M2-3 (Visión) para
+  comparar el tablero físico real contra el estado esperado.
 
 ## 7. Pendientes generales del proyecto
 
-- Definir protocolo de comunicación entre dispositivos (M10).
-- Definir controlador físico del brazo (¿Arduino/ESP32 dedicado?) y su
-  interfaz de bajo nivel (M8).
+- Definir protocolo de comunicación entre ESP32-CAM y la laptop (M1
+  → M10) — el protocolo laptop↔controlador del brazo ya quedó resuelto
+  en M8.
 - Definir política de color/`side_to_move` del robot para el primer
   movimiento de una partida (decisión de producto, no solo técnica).
 - Definir manejo de desincronización cuando Verificación (M9) detecte que
@@ -179,3 +203,12 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
   ver nota en `kinematics_ik.py` (M7).
 - Gestión de inventario de piezas de repuesto (cuántas quedan, cuándo
   reponerlas manualmente) — sin resolver, ver SPEC chess_planner §7.
+- Ejecutar el protocolo de calibración física de los 6 servos
+  (`M8_SPEC.md` §6) sobre el hardware real.
+- Validar `max_joint_speed_deg_s`, `gripper_settle_s` y
+  `first_move_settle_s` (`chess_actuators`) contra el comportamiento
+  real de los MG996R — placeholders sin medir, ver `M8_SPEC.md` §9.
+- Mitigar el auto-reset del Arduino UNO al abrir el puerto Serial
+  (capacitor en RESET o similar) — ver `M8_SPEC.md` §3, §9.
+- Definir posición de home/parking del brazo al iniciar/finalizar una
+  sesión de juego — decisión de producto para M10, ver `M8_SPEC.md` §9.

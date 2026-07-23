@@ -1,0 +1,15 @@
+# Calibración de ejemplo para tests -- valores no medidos, ver
+# M8_SPEC.md §6 para el formato real y el protocolo de medición.
+joints:
+  q1: { channel: 0, pulse_min_us: 500, pulse_max_us: 2500, angle_min_deg: -90.0, angle_max_deg: 90.0, reversed: false }
+  q2: { channel: 1, pulse_min_us: 500, pulse_max_us: 2500, angle_min_deg: -90.0, angle_max_deg: 90.0, reversed: false }
+  q3: { channel: 2, pulse_min_us: 500, pulse_max_us: 2500, angle_min_deg: -90.0, angle_max_deg: 90.0, reversed: true }
+  q4: { channel: 3, pulse_min_us: 500, pulse_max_us: 2500, angle_min_deg: -90.0, angle_max_deg: 90.0, reversed: false }
+  q5: { channel: 4, pulse_min_us: 500, pulse_max_us: 2500, angle_min_deg: -90.0, angle_max_deg: 90.0, reversed: false }
+
+gripper:
+  channel: 5
+  pulse_open_us: 1500
+  pulse_closed_us: 900
+
+pwm_frequency_hz: 50.0
