@@ -34,7 +34,7 @@ físicamente mediante un brazo robótico con pinza.
 | 4   | Estado del juego             | Mantener el `chess.Board` autoritativo, inferir la jugada humana desde la matriz de Visión, validar legalidad | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)     |
 | 5   | Motor de decisión            | Calcular la mejor jugada vía Stockfish                                                                        | **Implementado**                                                                                               | SPEC — chess_brain (M4-5)     |
 | 6   | Planificación de movimiento  | Traducir la jugada en una secuencia de acciones físicas (normal / captura / enroque / promoción)              | **Implementado**                                                                                               | SPEC — chess_planner (M6)     |
-| 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                                                           | Pendiente                                                                                                      | —                             |
+| 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                                                           | **Implementado**                                                                                               | SPEC — chess_kinematics (M7)  |
 | 8   | Control de actuadores        | Ejecutar trayectoria + control de pinza (alturas de aproximación, apertura/cierre)                            | Pendiente                                                                                                      | —                             |
 | 9   | Verificación post-movimiento | Confirmar que el tablero físico coincide con el estado esperado                                               | Pendiente                                                                                                      | —                             |
 | 10  | Orquestador / comunicación   | Coordinar el ciclo completo y la comunicación entre dispositivos                                              | Pendiente                                                                                                      | —                             |
@@ -77,8 +77,13 @@ físicamente mediante un brazo robótico con pinza.
 - **`CalibrationMap`** (M0 → M7): `dict[Location, ArmPoint]` con las 64
   casillas más las 4 `Zone` de `chess_planner`, resueltas a coordenadas
   cartesianas del brazo vía medición manual.
+- **`ArmTrajectory`** (M7 → M8): secuencia ordenada de `ArmWaypoint`
+  (ángulos de las 5 articulaciones activas + acción de pinza + tipo de
+  waypoint `TRANSIT`/`GRASP`). Resuelve el pendiente "M7 → M8: formato
+  de ángulos de articulación / trayectoria" de la versión anterior de
+  este documento.
 
-Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, **SPEC — chess_vision (Módulos 2-3)**, **SPEC — chess_planner (Módulo 6)** y **SPEC — chess_calibration (Módulo 0)**.
+Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, **SPEC — chess_vision (Módulos 2-3)**, **SPEC — chess_planner (Módulo 6)**, **SPEC — chess_calibration (Módulo 0)** y **SPEC — chess_kinematics (Módulo 7)**.
 
 ### 4.2 Pendientes de definir
 
@@ -92,11 +97,9 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
   `M2_M3_SPEC.md`).
 - Confirmar licencia del modelo de piezas de terceros antes de
   cualquier despliegue más allá de prototipo/uso personal.
-- M7 debe resolver cada `Location` de `PhysicalPlan` (casilla o
-  `Zone`) a coordenadas cartesianas, consumiendo el `CalibrationMap`
-  que ya entrega M0. El contrato de entrada a M7 queda cerrado; falta
-  implementar M7 en sí (cinemática inversa).
-- M7 → M8: formato de ángulos de articulación / trayectoria.
+- M8 debe definir cómo interpolar/temporizar entre los `ArmWaypoint`
+  consecutivos de `ArmTrajectory`, y qué hacer si la ejecución física
+  falla a mitad de una trayectoria (ver `M7_SPEC.md` §7).
 - M8 → M9: formato del estado físico verificado.
 - M10: protocolo de comunicación entre ESP32-CAM, laptop y controlador del
   brazo (WiFi/HTTP, Serial, MQTT — no decidido aún).
@@ -140,23 +143,39 @@ Detalle completo de estos contratos en **SPEC — chess_brain (Módulos 4-5)**, 
   traduce `MoveResult` a `PhysicalPlan` para movimiento normal, captura,
   enroque, captura al paso y promoción (política "solo Dama"). Cubierto
   con 15 tests. Ver SPEC — chess_planner (Módulo 6).
-- **Siguiente enfoque:** con M0 y M2-6 cubiertos (calibración física +
-  imagen → posición → jugada → plan físico simbólico, resuelto hasta
-  coordenadas cartesianas), el cuello de botella pasa a ser **Módulo 7
-  (Cinemática Inversa)**: ya tiene un contrato de entrada cerrado
-  (`CalibrationMap`) contra el cual diseñarse.
+- **M7 (Cinemática Inversa)** implementado (`chess_kinematics`):
+  resuelve IK vía Evolución Diferencial (una vez por sesión, cacheada en
+  `JointMap`) y traduce `PhysicalPlan` a `ArmTrajectory` (waypoints con
+  altura de tránsito segura). Cubierto con 21 tests. Ver SPEC —
+  chess_kinematics (Módulo 7).
+- **Siguiente enfoque:** con M0 y M2-7 cubiertos (calibración física +
+  imagen → posición → jugada → plan físico simbólico → ángulos de
+  articulación), el cuello de botella pasa a ser **Módulo 8 (Control de
+  Actuadores)**: ya tiene un contrato de entrada cerrado
+  (`ArmTrajectory`) contra el cual diseñarse.
 
 ## 7. Pendientes generales del proyecto
 
 - Definir protocolo de comunicación entre dispositivos (M10).
 - Definir controlador físico del brazo (¿Arduino/ESP32 dedicado?) y su
-  interfaz de bajo nivel (M7/M8).
+  interfaz de bajo nivel (M8).
 - Definir política de color/`side_to_move` del robot para el primer
   movimiento de una partida (decisión de producto, no solo técnica).
 - Definir manejo de desincronización cuando Verificación (M9) detecte que
   el estado físico no coincide con lo esperado.
 - Ejecutar el protocolo de medición física de M0 (`M0_SPEC.md` §4) con
   el tablero, las zonas y el brazo reales — el mecanismo ya existe,
-  falta la medición sobre el hardware definitivo.
+  falta la medición sobre el hardware definitivo. Al medir, verificar
+  además que las 4 esquinas queden dentro del radio de alcance del
+  brazo (~355 mm, `BOM.md` §3): `chess_kinematics` (M7) ya lo detecta
+  como `UnreachableLocationError`, pero recién al construir el
+  `JointMap`, no antes.
+- Medir físicamente `SAFE_TRAVEL_HEIGHT_MM` (altura de la pieza más
+  alta, típicamente el Rey, + margen) y las tolerancias de posición/
+  inclinación de `chess_kinematics` — placeholders sin validar, ver
+  `M7_SPEC.md` §7.
+- Verificar la convención de montaje de la pinza (eje de aproximación)
+  contra el efector físico real — asunción no verificable sin hardware,
+  ver nota en `kinematics_ik.py` (M7).
 - Gestión de inventario de piezas de repuesto (cuántas quedan, cuándo
   reponerlas manualmente) — sin resolver, ver SPEC chess_planner §7.

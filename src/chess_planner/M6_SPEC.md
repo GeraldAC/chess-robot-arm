@@ -179,10 +179,5 @@ ya presente en el proyecto).
   gestionado por software en v1.
 - Definir las coordenadas reales de esas 4 zonas — corresponde a M0
   (Calibración), fuera de alcance de este documento.
-- Contrato M6→M7: `PhysicalPlan` (secuencia de `PieceTransfer`) es la
-  propuesta de este SPEC; M7 debe resolver cada `Location` (casilla o
-  `Zone`) a coordenadas cartesianas.
-- Trayectoria fina (altura de aproximación, evitar colisión con otras
-  piezas al pasar por encima del tablero) — responsabilidad de M7/M8.
 - Tablas/empate (`game_status` en `stalemate`/`draw`): sin acción física
   que planificar, fuera de alcance de M6.

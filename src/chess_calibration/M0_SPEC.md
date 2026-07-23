@@ -326,12 +326,14 @@ librería estándar.
   `chess_planner` (M6) y con un instrumento de medición (calibre/regla)
   como material explícito del proyecto, requerido por el método de
   calibración elegido aquí.
-- **Contrato M0 → M7:** este SPEC entrega `CalibrationMap`; queda para el
-  SPEC de M7 decidir si la función de lookup `Location -> ArmPoint` vive
-  en `chess_calibration` o en `chess_planner`/`chess_kinematics`.
-- **Validación de alcance físico:** confirmar que los 68 puntos del
-  `CalibrationMap` caen dentro del radio de alcance del brazo (~355 mm)
-  es una mejora natural a `validate_board_geometry`, no incluida en v1.
+- **Validación de alcance físico:** sigue sin estar en
+  `validate_board_geometry` (M0). En la práctica, `chess_kinematics`
+  (M7) ya la detecta — como `UnreachableLocationError` al construir el
+  `JointMap` — pero recién después de medir todo el tablero. Sigue
+  siendo deseable adelantarla a M0 para no descubrir un punto
+  inalcanzable después de una medición manual completa. Confirmado con
+  datos de ejemplo: los puntos `h1`/`h8` de §7 de este documento caen a
+  ~408/447 mm del origen, fuera de los ~355 mm de alcance (BOM.md §3).
 - **Manejo de `CalibrationSessionNotFoundError` por el Orquestador (M10):**
   si al iniciar una partida no hay sesión de calibración vigente, M10
   debe decidir si bloquea el inicio o dispara `calibration_main.py`

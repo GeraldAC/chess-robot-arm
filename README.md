@@ -33,7 +33,7 @@ explícitos y tipados.
 | 4   | Estado del juego             | `chess.Board` autoritativo, inferencia de jugada humana, validación | Implementado |
 | 5   | Motor de decisión            | Cálculo de la mejor jugada vía Stockfish                            | Implementado |
 | 6   | Planificación de movimiento  | Traducción de la jugada a acciones físicas                          | Implementado |
-| 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                 | Pendiente    |
+| 7   | Cinemática inversa           | Coordenadas cartesianas → ángulos de articulaciones                 | Implementado |
 | 8   | Control de actuadores        | Ejecución de trayectoria y control de pinza                         | Pendiente    |
 | 9   | Verificación post-movimiento | Confirmación del estado físico contra el esperado                   | Pendiente    |
 | 10  | Orquestador / comunicación   | Coordinación del ciclo completo entre dispositivos                  | Pendiente    |
@@ -44,6 +44,7 @@ Documentación detallada por subsistema:
 - `SPEC` — chess_vision (Módulos 2-3): detección del tablero y clasificación de piezas.
 - `SPEC` — chess_brain (Módulos 4-5): estado del juego y motor de decisión.
 - `SPEC` — chess_planner (Módulo 6): planificación de movimiento físico.
+- `SPEC` — chess_kinematics (Módulo 7): cinemática inversa y trayectoria fina.
 - `SPEC` general: alcance, contratos entre módulos y decisiones transversales.
 
 ## Hardware
@@ -64,12 +65,14 @@ chess-robot-arm/
 │   ├── chess_brain/        # M4-5: estado del juego, motor de decisión, CLI
 │   ├── chess_vision/       # M2-3: detección de tablero, clasificación de piezas
 │   ├── chess_planner/      # M6: planificación de movimiento físico
-│   └── chess_calibration/  # M0: calibración física del brazo
+│   ├── chess_calibration/  # M0: calibración física del brazo
+│   └── chess_kinematics/   # M7: cinemática inversa y trayectoria fina
 ├── tests/
 │   ├── test_brain/
 │   ├── test_vision/
 │   ├── test_planner/
-│   └── test_calibration/
+│   ├── test_calibration/
+|   └── test_kinematics/
 └── .gitignore
 ```
 
@@ -127,6 +130,7 @@ uv run poe chess-test-brain
 uv run poe chess-test-vision
 uv run poe chess-test-planner
 uv run poe chess-test-calibration
+uv run poe chess-test-kinematics
 uv run poe chess-test
 ```
 
@@ -138,12 +142,11 @@ uv run pytest --cov
 
 ## Estado del proyecto
 
-Los módulos 0 y 2 a 6 (calibración, visión, motor de decisión y
-planificación de movimiento) están implementados y validados mediante
-simuladores y pruebas automatizadas. Los módulos 1, 7, 8, 9 y 10
-(captura de imagen, cinemática inversa, control de actuadores,
-verificación y orquestación) están pendientes de diseño e
-implementación.
+Los módulos 0 y 2 a 7 (calibración, visión, motor de decisión,
+planificación de movimiento y cinemática inversa) están implementados y
+validados mediante simuladores y pruebas automatizadas. Los módulos 1,
+8, 9 y 10 (captura de imagen, control de actuadores, verificación y
+orquestación) están pendientes de diseño e implementación.
 
 ### Limitaciones conocidas
 
@@ -156,7 +159,12 @@ implementación.
   coordenadas del brazo (`CalibrationMap`), pero falta ejecutar el
   protocolo de medición manual (`M0_SPEC.md` §4) sobre el hardware
   físico definitivo — no se ha hecho aún.
-
-## Licencia
-
-MIT
+- M7 asume una convención de montaje de la pinza (eje de aproximación =
+  eje Z del frame 6 del D-H) que no se ha podido verificar contra el
+  hardware real. `SAFE_TRAVEL_HEIGHT_MM` y las tolerancias de posición/
+  inclinación (`M7_SPEC.md` §7) son también placeholders a medir.
+- Validado con datos de ejemplo: una geometría de tablero puede ser
+  válida (`validate_board_geometry`, M0) y aun así quedar fuera del
+  alcance físico del brazo (~355 mm, `BOM.md` §3) — se recomienda
+  verificar el radio de las 4 esquinas antes de ejecutar la calibración
+  completa.

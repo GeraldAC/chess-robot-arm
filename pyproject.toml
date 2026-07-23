@@ -24,6 +24,7 @@ chess-test-brain = "pytest tests/test_brain/ --cov=src/chess_brain -v"
 chess-test-vision = "pytest tests/test_vision/ --cov=src/chess_vision -v"
 chess-test-planner = "pytest tests/test_planner/ --cov=src/chess_planner -v"
 chess-test-calibration = "pytest tests/test_calibration/ --cov=src/chess_calibration -v"
+chess-test-kinematics = "pytest tests/test_kinematics/ --cov=src/chess_kinematics -v"
 chess-test = "pytest tests/ --cov=src/ -v"
 
 [dependency-groups]
